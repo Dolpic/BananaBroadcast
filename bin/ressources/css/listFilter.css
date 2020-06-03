@@ -1,0 +1,11 @@
+.lineItem{
+
+}
+
+.lineItem:hover{
+	-fx-background-color: blue;
+}
+
+.lineItem label{
+	-fx-width: 200px;
+}

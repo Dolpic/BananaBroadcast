@@ -1,0 +1,6 @@
+A vérifier pour faire du bon code :
+
+- Check que les objets en paramètres de fonctions ne soient pas null
+- Check que tous les attributs soient bien private (ou au moins aient private/protected/public)
+- Check que toutes les variable constantes soient notées "final"
+- Check que tous les paramètres de toutes les fonctions soient bien "final" si possible

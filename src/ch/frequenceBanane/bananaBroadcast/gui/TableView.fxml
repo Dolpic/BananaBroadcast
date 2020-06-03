@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="rootLayout" prefHeight="401.0" prefWidth="724.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <TableView id="tableView" fx:id="tableView" prefHeight="446.0" prefWidth="724.0">
+        <columns>
+          <TableColumn id="columnTitre" prefWidth="202.0" text="Titre" />
+          <TableColumn id="columnArtiste" minWidth="5.0" prefWidth="141.5" text="Artiste" />
+            <TableColumn id="columnDuree" minWidth="0.0" prefWidth="56.5" text="Durée" />
+            <TableColumn id="columnCategorie" prefWidth="323.0" text="Catégories" />
+        </columns>
+      </TableView>
+   </children>
+</VBox>
