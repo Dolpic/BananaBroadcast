@@ -2,11 +2,13 @@ package ch.frequenceBanane.bananaBroadcast.tests;
 
 import org.junit.jupiter.api.Test;
 
+import ch.frequenceBanane.bananaBroadcast.audio.AudioPlayer;
+
 public class TestAudioPlayer {
 
 	@Test
 	public void AudioPlayerOperationsDoesNothingIfNoMusicLoaded() {
-	/*	AudioPlayer player = new AudioPlayer();
+		AudioPlayer player = new AudioPlayer();
 		player.play();
 		AudioPlayer player2 = new AudioPlayer();
 		player2.pause();
@@ -20,7 +22,7 @@ public class TestAudioPlayer {
 		player4.play();
 		player4.pause();
 		player4.close();
-		player4.close();*/
+		player4.close();
 	}
 	
 	@Test
