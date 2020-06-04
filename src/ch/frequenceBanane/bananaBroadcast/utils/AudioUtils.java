@@ -21,81 +21,115 @@ import org.jaudiotagger.tag.TagField;
 import ch.frequenceBanane.bananaBroadcast.database.*;
 import javazoom.jl.decoder.*;
 
-//TODO Est-ce que la gestion des exceptions est bien faite ici ?
+/**
+ * Provide useful static methods to manage audio files and generate waveforms
+ * @author Corentin Junod
+ * @author corentin.junod@epfl.ch
+ */
+
 public class AudioUtils {
 	private AudioUtils(){};
 	
-	public static ByteArrayOutputStream getWaveform(int imageWidth, int imageHeight, AudioFile audioFile) throws IOException{		
-		if(imageWidth <= 0 || imageHeight <= 0) {
-			throw new IllegalArgumentException("given width or height is zero or negative");
-		}
-		if(audioFile == null) {
-			throw new IllegalArgumentException("given audioFile is null");
-		}
+	final static int   WAVEFORM_COLOR            = new Color(255, 187, 0).getRGB();
+	final static Color WAVEFORM_BACKGROUND_COLOR = new Color(0, 0, 0);
+	
+	public static enum AudioFileExtension{
+		MP3,
+		WAV
+	}
+	
+	/**
+	 * Create a waveform of a given AudioFile, as a streamed PNG file
+	 * @param imageWidth the width of the image to generate
+	 * @param imageHeight the height of the image to generate
+	 * @param audioFile the Audiofile to generate the waveform from
+	 * @return a ByteArrayOutputStream describing the output image in PNG format, or null if an error occurs
+	 * @throws IllegalArgumentException if the given given sizes are 0 or negative, or the AudioFile is invalid
+	 */
+	public static ByteArrayOutputStream getWaveform(final int imageWidth, final int imageHeight, final AudioFile audioFile){		
+		if(imageWidth <= 0 || imageHeight <= 0) 
+			throw new IllegalArgumentException("Given width or height is zero or negative");
+		if(audioFile == null || audioFile.path == "")
+			throw new IllegalArgumentException("Given AudioFile is null or has no path");
 		
-		int color = new Color(255, 187, 0).getRGB();
-		
-		AudioFormat format = AudioUtils.getDefaultAudioFormat();
-		int byteArrayLength = format.getChannels()*format.getSampleSizeInBits()/8;
-		
+		AudioFormat      format      = AudioUtils.getDefaultAudioFormat();
 		AudioInputStream inputStream = AudioUtils.getAudioFileStream(format, audioFile.path);
-		BufferedImage output   = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
-		Graphics2D    graphics = output.createGraphics();
-		graphics.setPaint(new Color(0, 0, 0));
-		graphics.fillRect(0, 0, output.getWidth(), output.getHeight());
+		if(inputStream == null) {
+			Log.error("Unable to open file : "+audioFile.path);
+			return null;
+		}
 		
-		long streamLength = inputStream.getFrameLength();
-		int framesToSkip  = (int)Math.floor(streamLength/imageWidth/2)*2;
+		//TODO embed those values in a dedicated class, to simplify
+		int sampleSizeInBytes = format.getSampleSizeInBits()/8;
+		int byteArrayLength   = format.getChannels()*sampleSizeInBytes;
+		byte[] dataByte       = new byte[byteArrayLength];
 		
+		int framesToSkip  = (int)Math.floor(inputStream.getFrameLength()/imageWidth/2)*2;
 		double ratioY = imageHeight/Math.pow(2, format.getSampleSizeInBits());
 		
-		byte[] dataByte = new byte[byteArrayLength];
-		
-		int i=0;
-		do{
-			dataByte = inputStream.readNBytes(byteArrayLength);
-			inputStream.skip(format.getChannels()*framesToSkip*format.getSampleSizeInBits()/8);
-			
+		//Set image background
+		BufferedImage output = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
+		Graphics2D graphics = output.createGraphics();
+		graphics.setColor(WAVEFORM_BACKGROUND_COLOR);
+		graphics.fillRect(0, 0, output.getWidth(), output.getHeight());
+		for(int i=0; i<imageWidth && dataByte.length != 0; i++) {
+			try {
+				dataByte = inputStream.readNBytes(byteArrayLength);
+				inputStream.skip(format.getChannels()*framesToSkip*sampleSizeInBytes);
+			} catch (IOException e) {
+				Log.error("Unable to read "+byteArrayLength+" bytes from the file "+audioFile.path);
+				return null;
+			}
 			int dataRight = 0;
 			int dataLeft  = 0;
 
 			if(dataByte.length != 0) {
-				for(int j=0; j<format.getSampleSizeInBits()/8; j++) {
-					dataLeft +=  dataByte[j]<<(8*j);
+				for(int j=0; j<sampleSizeInBytes; j++) {
+					dataLeft += dataByte[j]<<(8*j);
 					if(format.getChannels() == 2) {
-						dataRight += dataByte[j+ format.getSampleSizeInBits()/8 ]<<(8*j);
+						dataRight += dataByte[j+ sampleSizeInBytes ]<<(8*j);
 					}
 				}
 
-				for(int j=0; j<=Math.abs(dataLeft*ratioY); j++) {
-					output.setRGB(i, imageHeight/2-j, color);
-				}
+				for(int j=0; j<=Math.abs(dataLeft*ratioY); j++)
+					output.setRGB(i, imageHeight/2-j, WAVEFORM_COLOR);
 				
-				for(int j=0; j<=Math.abs(dataRight*ratioY); j++) {
-					output.setRGB(i, imageHeight/2+j -1, color);
-				}
+				for(int j=0; j<=Math.abs(dataRight*ratioY); j++)
+					output.setRGB(i, imageHeight/2+j -1, WAVEFORM_COLOR);
 			}
-			i++;
-		}while(i<imageWidth && dataByte.length != 0);
-
+		}
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		ImageIO.write(output, "png", outputStream);
-		
-		return outputStream;
+		try {
+			ImageIO.write(output, "png", outputStream);
+			return outputStream;
+		} catch (IOException e) {
+			Log.error("Unable to write to write the waveform to the output stream");
+			return null;
+		}
 	}
 	
-	public static AudioInputStream getAudioFileStream(AudioFormat targetFormat, String name) {
+	/**
+	 * Return an audio data stream from a specified file in the specified format
+	 * @param targetFormat The format in which the result is formatted
+	 * @param path The path to the audio file
+	 * @return The audio stream describing the file in the given format, or null if an error occurs
+	 */
+	public static AudioInputStream getAudioFileStream(final AudioFormat targetFormat, final String path) {
+		if(targetFormat == null || path == null)
+			throw new IllegalArgumentException("One parameter is null");
+		
 		InputStream rawInputStream;
+		File audioFile = new File(path);
 		long inputStreamSize = 0;
 		
-		if(getExtension(name).equals("mp3")) {
+		if(getExtension(path) == AudioFileExtension.MP3) {
 			
 			Bitstream bitStream;
 			
 			try {
-				bitStream = new Bitstream(new FileInputStream(new File(name)));
+				bitStream = new Bitstream(new FileInputStream(audioFile));
 			} catch (FileNotFoundException e1) {
-				System.err.println("File not found");
+				Log.error("File '"+path+"' not found");
 				return null;
 			}
 			
@@ -119,44 +153,45 @@ public class AudioUtils {
 		            bitStream.closeFrame();
 					frameHeader = bitStream.readFrame();
 				}
-			} catch (BitstreamException e) {
-				System.err.println("Error in file reading");
-				return null;
-			} catch (DecoderException e) {
-				System.err.println("Error in file decoding");
-				return null;
-			} catch (IOException e) {
-				System.err.println("Error in file IO");
+			} catch (Exception e) {
+				Log.error("Error during file decoding");
 				return null;
 			}
         	
         	inputStreamSize /= targetFormat.getFrameSize();
         	rawInputStream = new ByteArrayInputStream(output.toByteArray());
 			
-		}else if(getExtension(name).equals("wav")) {
+		}else if(getExtension(path) == AudioFileExtension.WAV) {
 			AudioInputStream tmpStream;
 			try {
-				tmpStream = AudioSystem.getAudioInputStream(new File(name));
-			} catch (UnsupportedAudioFileException e) {
-				System.err.println("Unsupported file format");
-				return null;
-			} catch (IOException e) {
-				System.err.println("Error in file IO");
+				tmpStream = AudioSystem.getAudioInputStream(audioFile);
+			} catch (Exception e) {
+				Log.error("Error during file decoding");
 				return null;
 			}
 			inputStreamSize = tmpStream.getFrameLength();
 			rawInputStream = tmpStream;
 		}else {
-			System.err.println("Unsupported file format");
+			Log.error("Unsupported file format");
 			return null;
 		}
 		
 		return AudioSystem.getAudioInputStream(targetFormat, new AudioInputStream(rawInputStream, targetFormat, inputStreamSize)); 
 	}
 	
-	public static Music getAudioMetadata(String file) {
+	/**
+	 * Return a Music object containing the metadata of the specified file in path
+	 * @param path the file from which the metadata must be read
+	 * @return a Music object containing the metadata, or null if an error occurs
+	 * @throws IllegalArgumentException id the given path is null
+	 */
+	public static Music getAudioMetadata(final String path) {
+		if(path == null)
+			throw new IllegalArgumentException("path is null");
+		
 		try {
-			org.jaudiotagger.audio.AudioFile audioFile = AudioFileIO.read(new File(file));
+			File musicFile = new File(path);
+			org.jaudiotagger.audio.AudioFile audioFile = AudioFileIO.read(musicFile);
 			Tag tag = audioFile.getTag();
 			
 			String[] categories = {getTextTagValue(FieldKey.GENRE, tag)};
@@ -169,17 +204,42 @@ public class AudioUtils {
 					categories,
 					audioFile.getAudioHeader().getTrackLength(),
 					0,0,
-					new File(file).getAbsolutePath()
+					musicFile.getAbsolutePath()
 				);			
-		} catch (CannotReadException | IOException | TagException | ReadOnlyFileException
-				| InvalidAudioFrameException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
+			Log.error("Error during file handling");
 			return null;
 		}
 	}
 	
-	private static String getTextTagValue(FieldKey key, Tag tag) {
+	/**
+	 * Deduce the file extension for a file name
+	 * @param path the file name/path from which the extension must be deduced
+	 * @return The deduced extension, as a value from the enum AudioFileExtension or null 
+	 * if the given name is invalid or the extension is not recognized
+	 * @throws IllegalArgumentException if the given path is null
+	 */
+	public static AudioFileExtension getExtension(final String path) {
+		if(path == null)
+			throw new IllegalArgumentException("path is null");
+		if(path.length() < 3) {
+			Log.error("File name is too short, unable to find extension");
+			return null;
+		}
+		
+		switch(path.substring(path.length()-3, path.length())){
+			case "mp3":
+			case "MP3":
+				return AudioFileExtension.MP3;
+			case "wav":
+			case "WAV:":
+				return AudioFileExtension.WAV;
+			default:
+				return null;
+		}
+	}
+
+	private static String getTextTagValue(final FieldKey key, final Tag tag) {
 		String value = tag.getFirstField(key).toString();
 		if(value.startsWith("Text=")) {
 			return value.substring(6, value.length()-3);
@@ -187,24 +247,13 @@ public class AudioUtils {
 			return value;
 		}
 	}
-	
-	private static String getExtension(String name) {
-		if(name.length() < 3) {
-			System.err.println("File name is too short, unable to find extension");
-		}
-		return name.substring(name.length()-3, name.length());
-	}
-	
+
 	private static AudioFormat getDefaultAudioFormat() {
-		int sampleSize      = 16;
-		int nbChannel       = 2;
-		boolean signed      = true;
-		boolean bigEndian   = false;
-		float sampleRate    = (float) 44.1;
+		final int sampleSize      = 16;
+		final int nbChannel       = 2;
+		final boolean signed      = true;
+		final boolean bigEndian   = false;
+		final float sampleRate    = (float) 44.1;
 		return new AudioFormat(sampleRate, sampleSize, nbChannel, signed, bigEndian);
-	}
-	
-	public static class NoAvailableClipLineFound extends NoSuchElementException{
-		private static final long serialVersionUID = -4498309451179199554L;
 	}
 }

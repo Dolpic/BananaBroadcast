@@ -92,14 +92,7 @@ public class AudioPlayerView {
 		if(width == 0 || height == 0)
 			return;
 		
-		ByteArrayOutputStream outputStream;
-		try {
-			outputStream = AudioUtils.getWaveform(width*6, height*6, audioPlayer.getCurrentAudioFile());
-		} catch (IOException e) {
-			System.err.println("Could not load the waveform");
-			return;
-		}
-
+		ByteArrayOutputStream outputStream = AudioUtils.getWaveform(width*6, height*6, audioPlayer.getCurrentAudioFile());
 		if(outputStream != null) {
 			ByteArrayInputStream stream   = new ByteArrayInputStream(outputStream.toByteArray());
 			Image background = new Image(stream, width, height, false, true);

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import javax.sound.sampled.*;
 
-import ch.frequenceBanane.bananaBroadcast.utils.AudioUtils.NoAvailableClipLineFound;
 
 public class MixersUtilities {
 	private MixersUtilities(){};
@@ -79,7 +78,7 @@ public class MixersUtilities {
 				} catch (LineUnavailableException e) {}
 			}
 		}
-		throw new NoAvailableClipLineFound();
+		throw new IllegalStateException();
 	}
 	
 }

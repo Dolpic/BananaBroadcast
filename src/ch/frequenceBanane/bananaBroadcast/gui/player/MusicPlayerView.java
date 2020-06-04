@@ -5,6 +5,7 @@ import java.io.IOException;
 import ch.frequenceBanane.bananaBroadcast.audio.*;
 import ch.frequenceBanane.bananaBroadcast.database.*;
 import ch.frequenceBanane.bananaBroadcast.gui.GuiApp;
+import ch.frequenceBanane.bananaBroadcast.utils.Log;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 
@@ -40,11 +41,13 @@ public class MusicPlayerView extends AudioPlayerView{
 	private void updateView() {
 		Platform.runLater( () -> {
 			Music curMusic = musicPlayer.getCurrentAudioFile();
-			//if(curMusic != null) {
+			if(curMusic != null) {
 				artist.setText(curMusic.artist);
 				loadWaveform();
 				updateTimers();
-			//}
+			}else {
+				Log.warning("Trying to update a view with no music loaded");
+			}
 		});
 	}
 }

@@ -1,30 +1,29 @@
-/**
- * @question Est-ce bien d'avoir des subclasses ?
- * TODO permettre de supprimer des fonctions trigerrables
-*/
-
 package ch.frequenceBanane.bananaBroadcast.audio;
 
 import java.io.IOException;
+import java.util.function.Function;
+
 import javax.sound.sampled.*;
 
 import ch.frequenceBanane.bananaBroadcast.database.*;
 import ch.frequenceBanane.bananaBroadcast.utils.AudioUtils;
+import ch.frequenceBanane.bananaBroadcast.utils.Log;
 import ch.frequenceBanane.bananaBroadcast.utils.MixersUtilities;
 
 /**
  * Enable to load, play, pause and close an audio file over a selected audio peripheral
- * @author Corentin
+ * @author Corentin Junod
  * @author corentin.junod@epfl.ch
  */
+
 public class AudioPlayer{
 	
 	private Clip currentClip;
+	private LineListener loopListener;
+	private AudioFile audioFile;
+	
 	private boolean isPlaying   = false;
 	private boolean isRepeating = false;
-	private LineListener loopListener;
-	
-	private AudioFile audioFile;
 	
 	/** Create a new AudioPlayer with the first peripheral of the system selected*/
 	public AudioPlayer(){
@@ -35,9 +34,9 @@ public class AudioPlayer{
 	 * Load a music in memory, then the AudioPlayer is ready to play
 	 * @param music the music to load
 	 * @return true if the current music was successfully loaded, false if an error occurred
-	 * @throws IllegalArgumentException if the music is null, or his path is empty
+	 * @throws IllegalArgumentException if the music is null, or its path is empty
 	 */
-	public boolean load(AudioFile file){
+	public boolean load(final AudioFile file){
 		audioFile = file;
 		
 		if(file == null)
@@ -51,18 +50,19 @@ public class AudioPlayer{
 			currentClip.open(inputStream);
 			return true;
 		} catch (LineUnavailableException e) {
-			System.err.println("Unavailable output peripheral");
+			Log.error("Unavailable output peripheral");
 		} catch (IllegalStateException e) {
-			System.err.println("Error : the player can't be stopped");
+			Log.error("The player can't be stopped");
 		} catch (IOException e) {
-			System.err.println("Error in file input / output");
+			Log.error("Problem duraing file input / output");
+		} catch (NullPointerException e) {
+			Log.error("AudioPlayer missing file "+file.path);
 		}
 		return false;
 	}
 	
 	/** Start the current loaded music. If no music is loaded, does nothing*/
 	public void play() {
-		System.out.println("PLAY!");
 		if(currentClip.getMicrosecondLength() == currentClip.getMicrosecondPosition())
 			setPosition(0);
 		currentClip.start();
@@ -71,7 +71,6 @@ public class AudioPlayer{
 	
 	/** Pause the current music. If no music is playing does nothing*/
 	public void pause() {
-		System.out.println("PAUSE!");
 		currentClip.stop();
 		isPlaying = false;
 	}
@@ -83,22 +82,25 @@ public class AudioPlayer{
 		isPlaying = false;
 	}
 	
+	/** Put the cursor at the end of the audio file and stop it*/
 	public void goToEnd() {
 		currentClip.stop();
 		setPosition(currentClip.getMicrosecondLength());
 		isPlaying = false;
 	}
 	
+	/** Put the cursor at the beginning of the audio file*/
 	public void goToStart() {
 		setPosition(0);
 	}
 	
+	/** Put the cursor at the beginning of the audio file and stop it*/
 	public void reload() {
 		pause();
 		setPosition(0);
 	}
 	
-	public void setPosition(long position) {
+	public void setPosition(final long position) {
 		currentClip.setMicrosecondPosition(position);
 	}
 	
@@ -107,19 +109,26 @@ public class AudioPlayer{
 		return isPlaying;
 	}
 	
-	public void setRepeat(boolean isRepeating) {
+	
+	/**
+	 * Set if the current player must repeat the audio when the end is reached
+	 * @param isRepeating if true, the audio will loop when the end is reached
+	 */
+	public void setRepeat(final boolean isRepeating) {
 		this.isRepeating = isRepeating;
 		if(isRepeating) {
-			loopListener = addOnEndEvent( () -> {reload();play();} );
+			loopListener = addOnEndEvent( () ->goToStart() );
 		}else {
 			removeOnEndEvent(loopListener);
 		}
 	}
 	
+	/** @return true if the audio is set to be repeated when the end is reached, false otherwise */
 	public boolean isRepeating() {
 		return isRepeating;
 	}
 	
+	/** @return the current AudioFile used by the player */
 	public AudioFile getCurrentAudioFile() {
 		return audioFile;
 	}
@@ -158,57 +167,65 @@ public class AudioPlayer{
 	/**
 	 * Call the given runnable when the player reach the end of the current music and the music is not repeating
 	 * @param runnable The runnable to run when the event is triggered
+	 * @throws IllegalArgumentException if the given runnable is null
 	 */
-	public LineListener addOnFinishEvent(Runnable runnable) {
-		LineListener listener = new LineListener() {
-	        public void update(LineEvent event) {
-	            if (event.getType() == LineEvent.Type.STOP && getRemainingTime() == 0.0) {
-	            	if(!isRepeating) 
-	            		runnable.run();
-	            }   
-	    }};
-		currentClip.addLineListener(listener);
-		return listener;
+	public LineListener addOnFinishEvent(final Runnable runnable) {
+		return createListenerOnCondition(runnable, 
+			(event)-> {return event.getType() == LineEvent.Type.STOP && getRemainingTime() == 0.0 && !isRepeating;}
+		);
 	}
 	
-	public LineListener addOnEndEvent(Runnable runnable) {
-		LineListener listener = new LineListener() {
-	        public void update(LineEvent event) {
-	            if (event.getType() == LineEvent.Type.STOP && getRemainingTime() == 0.0) { 
-	            	runnable.run();
-	            }   
-	    }};
-		currentClip.addLineListener(listener);
-		return listener;
+	/**
+	 * Call the given runnable when the player reach the end of the current music, even if it is set to be repeated
+	 * @param runnable The runnable to run when the event is triggered
+	 * @throws IllegalArgumentException if the given runnable is null
+	 */
+	public LineListener addOnEndEvent(final Runnable runnable) {
+		return createListenerOnCondition(runnable, 
+			(event)-> {return event.getType() == LineEvent.Type.STOP && getRemainingTime() == 0.0;}
+		);
 	}
 	
-	public void removeOnEndEvent(LineListener listener) {
+	/**
+	 * Disable a listener returned by the function addOnEndEvent
+	 * @param The listener to disable
+	 */
+	public void removeOnEndEvent(final LineListener listener) {
 		currentClip.removeLineListener(listener);
 	}
 	
 	/**
 	 * Call the given runnable when the player loads a new music
 	 * @param runnable The runnable to run when the event is triggered
+	 * @throws IllegalArgumentException if the given runnable is null
 	 */
-	public void addOnLoadEvent(Runnable runnable) {
-		LineListener listener = new LineListener() {
-	        public void update(LineEvent event) {
-	            if (event.getType() == LineEvent.Type.OPEN)
-	                runnable.run();
-	    }};
-		currentClip.addLineListener(listener);
+	public LineListener addOnLoadEvent(final Runnable runnable) {
+		return createListenerOnCondition(runnable, 
+			(event)-> {return event.getType() == LineEvent.Type.OPEN;}
+		);
 	}
 	
 	/**
 	 * Call the given runnable when the player starts to play the loaded music
 	 * @param runnable The runnable to run when the event is triggered
+	 * @throws IllegalArgumentException if the given runnable is null
 	 */
-	public void addOnPlayEvent(Runnable runnable) {
+	public LineListener addOnPlayEvent(final Runnable runnable) {
+		return createListenerOnCondition(runnable, 
+			(event)-> {return event.getType() == LineEvent.Type.START;}
+		);
+	}
+	
+	private LineListener createListenerOnCondition(final Runnable runnable, final Function<LineEvent, Boolean> condition) {
+		if(runnable == null)
+			throw new IllegalArgumentException("Given runnable is null");
+		
 		LineListener listener = new LineListener() {
 	        public void update(LineEvent event) {
-	            if (event.getType() == LineEvent.Type.START)
+	            if (condition.apply(event))
 	                runnable.run();
 	    }};
 		currentClip.addLineListener(listener);
+		return listener;
 	}
 }
