@@ -6,6 +6,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import ch.frequenceBanane.bananaBroadcast.utils.Log;
+
 /**
  * Create a connection with the specified database and provide useful functions to
  * retrieve data from it.
@@ -19,15 +21,8 @@ public class MusicDatabase {
 	private Connection connection;
 	
 	/** Create a new connection with the database */
-	public MusicDatabase(String url, String user, String password){
-		try {
-			connection = DriverManager.getConnection(url+"?serverTimezone=UTC", user, password);
-		} catch (SQLException e) {
-			/**
-			 * @question Comment gérer ce cas d'erreur, doit on la forward plus haut, ou juste la gérer la?
-			 */
-			System.err.println("Unable to connect to database : "+e.getMessage());
-		}
+	public MusicDatabase(String url, String user, String password) throws SQLException{
+		connection = DriverManager.getConnection(url+"?serverTimezone=UTC", user, password);
 	}
 		
 	/** @return All musics in the database, null if an error occurs */

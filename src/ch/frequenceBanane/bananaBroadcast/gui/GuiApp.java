@@ -1,6 +1,7 @@
 package ch.frequenceBanane.bananaBroadcast.gui;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -16,7 +17,9 @@ import ch.frequenceBanane.bananaBroadcast.gui.mainPane.MainPane;
 import ch.frequenceBanane.bananaBroadcast.gui.player.AudioPlayerView;
 import ch.frequenceBanane.bananaBroadcast.gui.player.MusicPlayerView;
 import ch.frequenceBanane.bananaBroadcast.gui.playlist.AudioFileListView;
+import ch.frequenceBanane.bananaBroadcast.utils.Log;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -37,11 +40,20 @@ public class GuiApp extends Application{
     
     private CategorySelectorView categorySelector;
     
+	private final String databaseUrl      = "jdbc:mysql://localhost:3307/bananabroadcast";
+	private final String databaseUser     = "root";
+	private final String databasePassword = "usbw";
+    
     @Override
-    public void start(Stage primaryStage) throws IOException, UnsupportedAudioFileException, SQLException {
+    public void start(Stage primaryStage) throws Exception {
     	primaryStage.setTitle("BananaBroadcast");
-        
-        app = new BananaBroadcast();
+        try {
+        	app = new BananaBroadcast(databaseUrl, databaseUser, databasePassword);
+        }catch(ConnectException e){
+        	Log.error("Unable to connect to the database");
+        	die();
+        }
+        app = new BananaBroadcast(databaseUrl, databaseUser, databasePassword);
         app.initialize();
         
         playlist     = new AudioFileListView<>(app.playlist, AudioFileListView.getMusicData());
@@ -99,5 +111,10 @@ public class GuiApp extends Application{
     
     public static void main(String[] args) {
         launch(args);
+    }
+    
+    public static void die() {
+    	Platform.exit();
+    	System.exit(1);
     }
 }

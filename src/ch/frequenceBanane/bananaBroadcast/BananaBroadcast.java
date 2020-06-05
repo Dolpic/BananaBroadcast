@@ -1,6 +1,7 @@
 package ch.frequenceBanane.bananaBroadcast;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -10,6 +11,7 @@ import ch.frequenceBanane.bananaBroadcast.categories.*;
 import ch.frequenceBanane.bananaBroadcast.database.*;
 import ch.frequenceBanane.bananaBroadcast.scheduling.*;
 import ch.frequenceBanane.bananaBroadcast.utils.CartouchesArray;
+import ch.frequenceBanane.bananaBroadcast.utils.Log;
 
 public class BananaBroadcast {
 	
@@ -34,14 +36,16 @@ public class BananaBroadcast {
 	private final byte[] gpioIp     = {10, 10, 2, (byte) 235};
 	private final int gpioPort      = 93;
 	
-	private final String databaseUrl      = "jdbc:mysql://localhost:3307/bananabroadcast";
-	private final String databaseUser     = "root";
-	private final String databasePassword = "usbw";
-	
 	private boolean isInManual = false;
 	
-	public BananaBroadcast() throws SQLException, IOException {
-		database         = new MusicDatabase(databaseUrl, databaseUser, databasePassword);
+	public BananaBroadcast(String databaseUrl,String databaseUser,String databasePassword) throws SQLException, IOException {
+		try {
+			database = new MusicDatabase(databaseUrl, databaseUser, databasePassword);
+		}catch(Exception e) {
+			Log.error("Unable to communicate with the database : "+e.getMessage());
+			throw new ConnectException();
+		}
+		
 		player1          = new MusicPlayer();
 		player2          = new MusicPlayer();
 		mainPlayer       = new AudioPlayer();
@@ -96,8 +100,6 @@ public class BananaBroadcast {
 		if(next != null) {
 			player2.loadMusic(next);
 		}
-		
-		System.out.println(player1.getCurrentAudioFile());
 	}
 	
 	public void setManual(boolean isManual) {

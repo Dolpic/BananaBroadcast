@@ -1,6 +1,9 @@
 package ch.frequenceBanane.bananaBroadcast.GPIO;
 
 import java.net.*;
+
+import ch.frequenceBanane.bananaBroadcast.utils.Log;
+
 import java.io.*;
 
 /** 
@@ -80,7 +83,7 @@ public class GPIOInterface extends Thread{
 			}
 			socket.close();
 		} catch (IOException e) {
-			System.err.println("Error in GPIO connexion : "+e.getMessage());
+			Log.error("Error in GPIO connexion : "+e.getMessage());
 		}
 	}
 
