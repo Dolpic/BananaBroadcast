@@ -1,12 +1,9 @@
 package ch.frequenceBanane.bananaBroadcast.gui;
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.function.Consumer;
-
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 import ch.frequenceBanane.bananaBroadcast.BananaBroadcast;
 import ch.frequenceBanane.bananaBroadcast.database.AudioFile;
@@ -49,8 +46,8 @@ public class GuiApp extends Application{
     	primaryStage.setTitle("BananaBroadcast");
         try {
         	app = new BananaBroadcast(databaseUrl, databaseUser, databasePassword);
-        }catch(ConnectException e){
-        	Log.error("Unable to connect to the database");
+        }catch(SQLException e){
+        	Log.error("Unable to connect to the database : "+e.getMessage());
         	die();
         }
         app = new BananaBroadcast(databaseUrl, databaseUser, databasePassword);
@@ -71,13 +68,12 @@ public class GuiApp extends Application{
         	ArrayList<AudioFile> newList = null;
 			try {
 				newList = app.database.getFromCategoriesAndKind(Kind.MUSIC, selected);
+	        	app.databaseList.removeAll();
+	        	app.databaseList.addAtEnd(newList);
+	        	databaseList.updateView();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Log.error("Unable to update the categorie lists : "+e.getMessage());
 			}
-        	app.databaseList.removeAll();
-        	app.databaseList.addAtEnd(newList);
-        	databaseList.updateView();
         });
         
         mainPane.addTopLeftNode(player1.getRootLayout());

@@ -6,8 +6,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-import ch.frequenceBanane.bananaBroadcast.utils.Log;
-
 /**
  * Create a connection with the specified database and provide useful functions to
  * retrieve data from it.
@@ -41,7 +39,7 @@ public class MusicDatabase {
 		return getQueryResultMusics(queryResults);
 	}
 	
-	public ArrayList<Music> getScheduledAt(LocalDate date, int hour){
+	public ArrayList<Music> getScheduledAt(LocalDate date, int hour) throws SQLException{
 		ResultSet queryResults = null;
 		DateTimeFormatter formater = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		String query = "SELECT * "
@@ -49,37 +47,26 @@ public class MusicDatabase {
 				 + "WHERE s.musicId = m.ID AND s.slot = ? AND s.day = ? ORDER BY playOrder";
 		
 		PreparedStatement preparedStatement;
-		try {
-			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setInt(1, hour); 
-			preparedStatement.setString(2, formater.format(date)); 
-			queryResults = preparedStatement.executeQuery();
-			return getQueryResultMusics(queryResults);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
+		preparedStatement = connection.prepareStatement(query);
+		preparedStatement.setInt(1, hour); 
+		preparedStatement.setString(2, formater.format(date)); 
+		queryResults = preparedStatement.executeQuery();
+		return getQueryResultMusics(queryResults);
 	}
 	
-	public void addScheduledAt(Music music, LocalDate date, int hour) {
+	public void addScheduledAt(Music music, LocalDate date, int hour) throws SQLException {
 		int nextOrder = getScheduledAt(date, hour).size();
 		
 		DateTimeFormatter formater = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		String query = "INSERT INTO scheduler(musicID, playOrder, slot, day) VALUES(?,?,?,?)";
 		
 		PreparedStatement preparedStatement;
-		try {
-			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setInt(1, music.id); 
-			preparedStatement.setInt(2, nextOrder); 
-			preparedStatement.setInt(3, hour); 
-			preparedStatement.setString(4, formater.format(date)); 
-			preparedStatement.executeUpdate();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		preparedStatement = connection.prepareStatement(query);
+		preparedStatement.setInt(1, music.id); 
+		preparedStatement.setInt(2, nextOrder); 
+		preparedStatement.setInt(3, hour); 
+		preparedStatement.setString(4, formater.format(date)); 
+		preparedStatement.executeUpdate();
 	}
 	
 	public ArrayList<Jingle> getCartouches(String panel) throws SQLException{
@@ -145,63 +132,48 @@ public class MusicDatabase {
 			preparedStatement.setString(2, categorie); 
 			preparedStatement.executeQuery();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			// Auto-generated catch block
 			e.printStackTrace();
 		} 
 	}*/
 	
-	public void removeSchedulerCategorie(Kind kind, String categorie, LocalDate date, int hour) {
+	public void removeSchedulerCategorie(Kind kind, String categorie, LocalDate date, int hour) throws SQLException {
 		DateTimeFormatter formater = DateTimeFormatter.ofPattern("yyyy-mm-dd");
 		String query = "DELETE FROM scheduler_planning WHERE date = ? AND categorie = ?";
 		PreparedStatement preparedStatement;
-		try {
-			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setString(1, formater.format(date)+" "+hour+":00:00"); 
-			preparedStatement.setString(2, categorie); 
-			preparedStatement.executeQuery();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+		preparedStatement = connection.prepareStatement(query);
+		preparedStatement.setString(1, formater.format(date)+" "+hour+":00:00"); 
+		preparedStatement.setString(2, categorie); 
+		preparedStatement.executeQuery();
 	}
 	
-	public TreeMap<Integer, String[]> getPlanningOfDay(LocalDate date){
+	public TreeMap<Integer, String[]> getPlanningOfDay(LocalDate date) throws SQLException{
 		TreeMap<Integer, String[]> result = new TreeMap<Integer, String[]>();
 		DateTimeFormatter formater = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		
 		String query = "SELECT HOUR(date) as hour, categories FROM scheduler_planning WHERE CONVERT(date, date) = '"+formater.format(date)+"' ORDER BY hour";
-		try {
-			ResultSet queryResults = connection.createStatement().executeQuery(query);
-			while(queryResults.next()) {
-				result.put(queryResults.getInt("hour"), queryResults.getString("categories").split(";"));
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		ResultSet queryResults = connection.createStatement().executeQuery(query);
+		while(queryResults.next()) {
+			result.put(queryResults.getInt("hour"), queryResults.getString("categories").split(";"));
 		}
 		return result;
 	}
 	
-	public TreeMap<Integer, String[]> getDefaultPlanningOfDay(int day){
+	public TreeMap<Integer, String[]> getDefaultPlanningOfDay(int day) throws SQLException{
 		TreeMap<Integer, String[]> result = new TreeMap<Integer, String[]>();
 		
 		String query = "SELECT hour, categories FROM scheduler_default WHERE day = ? ORDER BY hour";
 		PreparedStatement preparedStatement;
-		try {
-			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setInt(1, day); 
-			ResultSet queryResults = preparedStatement.executeQuery();
-			while(queryResults.next()) {
-				result.put(queryResults.getInt("hour"), queryResults.getString("categories").split(";"));
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		preparedStatement = connection.prepareStatement(query);
+		preparedStatement.setInt(1, day); 
+		ResultSet queryResults = preparedStatement.executeQuery();
+		while(queryResults.next()) {
+			result.put(queryResults.getInt("hour"), queryResults.getString("categories").split(";"));
 		}
 		return result;
 	}
 	
-	public void setPlanningOfDay(LocalDate date, int hour, ArrayList<String> categories){
+	public void setPlanningOfDay(LocalDate date, int hour, ArrayList<String> categories) throws SQLException{
 		String joined = "";
 		DateTimeFormatter formater = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		
@@ -214,19 +186,14 @@ public class MusicDatabase {
 		String query = "INSERT INTO scheduler_planning (date, categories) VALUES(?, ?) ON DUPLICATE KEY UPDATE categories=?";
 
 		PreparedStatement preparedStatement;
-		try {
-			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setString(1, formater.format(date)+" "+hour+":00:00"); 
-			preparedStatement.setString(2, joined); 
-			preparedStatement.setString(3, joined);
-			preparedStatement.executeUpdate();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+		preparedStatement = connection.prepareStatement(query);
+		preparedStatement.setString(1, formater.format(date)+" "+hour+":00:00"); 
+		preparedStatement.setString(2, joined); 
+		preparedStatement.setString(3, joined);
+		preparedStatement.executeUpdate();
 	}
 	
-	public void setDefaultPlanningOfDay(int day, int hour, ArrayList<String> categories){
+	public void setDefaultPlanningOfDay(int day, int hour, ArrayList<String> categories) throws SQLException{
 		String joined = "";
 		
 		for(int i=0; i<categories.size(); i++) {
@@ -238,20 +205,15 @@ public class MusicDatabase {
 		String query = "INSERT INTO scheduler_default (day, hour, categories) VALUES(?,?,?) ON DUPLICATE KEY UPDATE categories=?";
 
 		PreparedStatement preparedStatement;
-		try {
-			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setInt(1, day); 
-			preparedStatement.setInt(2, hour);
-			preparedStatement.setString(3, joined); 
-			preparedStatement.setString(4, joined);
-			preparedStatement.executeUpdate();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+		preparedStatement = connection.prepareStatement(query);
+		preparedStatement.setInt(1, day); 
+		preparedStatement.setInt(2, hour);
+		preparedStatement.setString(3, joined); 
+		preparedStatement.setString(4, joined);
+		preparedStatement.executeUpdate();
 	}
 	
-	public ArrayList<Music> getRandomMusicFromCategorie(ArrayList<String> categories, int nbMusics){
+	public ArrayList<Music> getRandomMusicFromCategorie(ArrayList<String> categories, int nbMusics) throws SQLException{
 		if(categories.isEmpty())
 			return new ArrayList<Music>();
 		
@@ -266,23 +228,17 @@ public class MusicDatabase {
 		String query = "SELECT * FROM musics m, musics_categories mc WHERE m.ID = mc.ID AND mc.categorie IN "+toInsert+" ORDER BY RAND() LIMIT ?";
 		ResultSet queryResults = null;
 		PreparedStatement preparedStatement;
-		try {
-			preparedStatement = connection.prepareStatement(query);
-			for(int i=0; i<categories.size(); i++) {
-				preparedStatement.setString(i+1, categories.get(i));
-			}
-			preparedStatement.setInt(categories.size()+1, nbMusics); 
-			queryResults = preparedStatement.executeQuery();
-			return getQueryResultMusics(queryResults);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} 
+		preparedStatement = connection.prepareStatement(query);
+		for(int i=0; i<categories.size(); i++) {
+			preparedStatement.setString(i+1, categories.get(i));
+		}
+		preparedStatement.setInt(categories.size()+1, nbMusics); 
+		queryResults = preparedStatement.executeQuery();
+		return getQueryResultMusics(queryResults);
 	}
 	
 	//TODO : gérer les startTime / endTime et albumIndex qui est toujours à 0
-	public void addNewMusic(Music music) {
+	public void addNewMusic(Music music) throws SQLException {
 		int nextID = getNextAutoIncrement("musics");
 		
 		String query = "INSERT INTO musics(title, artist, album, albumIndex, genre, duration, addTime, startTime, endTime, path)"
@@ -291,25 +247,20 @@ public class MusicDatabase {
 		String queryCategories = "INSERT INTO musics_categories(ID, categorie) VALUES(?, ?)";
 				
 		PreparedStatement preparedStatement;
-		try {
-			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setString(1, music.title); 
-			preparedStatement.setString(2, music.artist); 
-			preparedStatement.setString(3, music.album); 
-			preparedStatement.setInt(4, 0); 
-			preparedStatement.setString(5, music.genre); 
-			preparedStatement.setInt(6, music.duration); 
-			preparedStatement.setString(7, music.path); 
-			preparedStatement.executeUpdate();
-			
-			preparedStatement = connection.prepareStatement(queryCategories);
-			preparedStatement.setInt(1, nextID);
-			preparedStatement.setString(2, music.genre);
-			preparedStatement.executeUpdate();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+		preparedStatement = connection.prepareStatement(query);
+		preparedStatement.setString(1, music.title); 
+		preparedStatement.setString(2, music.artist); 
+		preparedStatement.setString(3, music.album); 
+		preparedStatement.setInt(4, 0); 
+		preparedStatement.setString(5, music.genre); 
+		preparedStatement.setInt(6, music.duration); 
+		preparedStatement.setString(7, music.path); 
+		preparedStatement.executeUpdate();
+		
+		preparedStatement = connection.prepareStatement(queryCategories);
+		preparedStatement.setInt(1, nextID);
+		preparedStatement.setString(2, music.genre);
+		preparedStatement.executeUpdate();
 	}
 	
 	private ArrayList<Music> getQueryResultMusics(ResultSet queryResults) throws SQLException{
@@ -373,20 +324,14 @@ public class MusicDatabase {
 		}
 	}
 	
-	private int getNextAutoIncrement(String table){
+	private int getNextAutoIncrement(String table) throws SQLException{
 		String query = "SELECT AUTO_INCREMENT FROM information_schema.tables WHERE table_name = ?";
 		PreparedStatement preparedStatement;
 		ResultSet queryResults;
-		try {
-			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setString(1, table); 
-			queryResults = preparedStatement.executeQuery();
-			queryResults.next();
-			return queryResults.getInt("AUTO_INCREMENT");
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return 0;
-		} 
+		preparedStatement = connection.prepareStatement(query);
+		preparedStatement.setString(1, table); 
+		queryResults = preparedStatement.executeQuery();
+		queryResults.next();
+		return queryResults.getInt("AUTO_INCREMENT");
 	}
 }

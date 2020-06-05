@@ -3,14 +3,13 @@ package ch.frequenceBanane.bananaBroadcast.scheduling;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.TreeMap;
 
 import ch.frequenceBanane.bananaBroadcast.database.*;
 import ch.frequenceBanane.bananaBroadcast.database.MusicDatabase.Kind;
+import ch.frequenceBanane.bananaBroadcast.utils.Log;
 
 public class Scheduler {
 	
@@ -18,6 +17,7 @@ public class Scheduler {
 	private ArrayList<String> categories;
 	
 	private final int DEFAULT_FILL_HOURS = 2;
+	private final int DEFAULT_NUMBER_OF_MUSIC_PER_HOUR = 20;
 	
 	public Scheduler(MusicDatabase database) {
 		this.database = database;
@@ -50,7 +50,13 @@ public class Scheduler {
 	}
 	
 	public ArrayList<String> getPlanningOf(LocalDate date, int hour){
-		String[] planning = database.getPlanningOfDay(date).get(hour);
+		String[] planning;
+		try {
+			planning = database.getPlanningOfDay(date).get(hour);
+		} catch (SQLException e) {
+			planning = null;
+			Log.error("Could not retrieve the planning : "+e.getMessage());
+		}
 		if(planning == null)
 			return new ArrayList<String>();
 		else
@@ -58,7 +64,13 @@ public class Scheduler {
 	}
 	
 	public ArrayList<String> getDefaultPlanningOf(int day, int hour){
-		String[] planning = database.getDefaultPlanningOfDay(day).get(hour);
+		String[] planning;
+		try {
+			planning = database.getDefaultPlanningOfDay(day).get(hour);
+		} catch (SQLException e) {
+			planning = null;
+			Log.error("Could not retrieve the default planning : "+e.getMessage());
+		}
 		if(planning == null)
 			return new ArrayList<String>();
 		else
@@ -66,11 +78,19 @@ public class Scheduler {
 	}
 	
 	public void setPlanningOf(LocalDate date, int hour, ArrayList<String> categories) {
-		database.setPlanningOfDay(date, hour, categories);
+		try {
+			database.setPlanningOfDay(date, hour, categories);
+		} catch (SQLException e) {
+			Log.error("Database error : Unable to set the planning : "+e.getMessage());
+		}
 	}
 	
 	public void setDefaultPlanningOf(int day, int hour, ArrayList<String> categories) {
-		database.setDefaultPlanningOfDay(day, hour, categories);
+		try {
+			database.setDefaultPlanningOfDay(day, hour, categories);
+		} catch (SQLException e) {
+			Log.error("Database error : Unable to set the default planning : "+e.getMessage());
+		}
 	}
 	
 	public void fillScheduler(int hoursToFill) {
@@ -79,16 +99,26 @@ public class Scheduler {
 		while(hoursToFill > 0) {
 			LocalDate curDate = date.toLocalDate();
 			int curHours = date.getHour();
-			if(database.getScheduledAt(curDate, curHours).isEmpty()) {
-				ArrayList<String> planning = getPlanningOf(curDate, curHours);
-				
-				if(planning.isEmpty()) {
-					planning = getDefaultPlanningOf(curDate.getDayOfWeek().getValue()-1, curHours);
+			try {
+				if(database.getScheduledAt(curDate, curHours).isEmpty()) {
+					ArrayList<String> planning = getPlanningOf(curDate, curHours);
+					
+					if(planning.isEmpty()) {
+						planning = getDefaultPlanningOf(curDate.getDayOfWeek().getValue()-1, curHours);
+					}
+					
+					database.getRandomMusicFromCategorie(planning, DEFAULT_NUMBER_OF_MUSIC_PER_HOUR).forEach(
+					    music -> {
+							try {
+								database.addScheduledAt(music, curDate, curHours);
+							} catch (SQLException e) {
+								Log.error("Database error : Unable to add a music to the scheduler : "+e.getMessage());
+							}
+						}
+					);
 				}
-				
-				database.getRandomMusicFromCategorie(planning, 20).forEach(  //TODO changer le nombre 20 qui est magique
-				    music -> database.addScheduledAt(music, curDate, curHours)
-				);
+			} catch (SQLException e) {
+				Log.error("Database error : Unable to fill the scheduler : "+e.getMessage());
 			}
 			
 			date = date.plusHours(1);

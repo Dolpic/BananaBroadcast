@@ -77,7 +77,6 @@ public class AudioPlayerView {
 		loadWaveform();
     }
 	
-	// TODO copie défensive ??
 	public GridPane getRootLayout() {
 		return playerRoot;
 	}

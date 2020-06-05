@@ -2,6 +2,7 @@ package ch.frequenceBanane.bananaBroadcast.gui.mainPane;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import ch.frequenceBanane.bananaBroadcast.BananaBroadcast;
@@ -13,6 +14,7 @@ import ch.frequenceBanane.bananaBroadcast.gui.scheduler.SchedulerView;
 import ch.frequenceBanane.bananaBroadcast.scheduling.Scheduler;
 import ch.frequenceBanane.bananaBroadcast.utils.AudioUtils;
 import ch.frequenceBanane.bananaBroadcast.utils.CartouchesArray;
+import ch.frequenceBanane.bananaBroadcast.utils.Log;
 import javafx.application.Platform;
 import javafx.event.*;
 import javafx.fxml.FXML;
@@ -137,7 +139,11 @@ public class MainPane{
 		
 		schedulerButton.setOnAction(new EventHandler<ActionEvent>() {
 		    @Override public void handle(ActionEvent e) {
-	            new SchedulerView(scheduler);
+	            try {
+					new SchedulerView(scheduler);
+				} catch (IOException e1) {
+					Log.error("Unable to create the Scheduler : "+e1.getMessage());
+				}
 		    }
 		});
 		
@@ -149,7 +155,11 @@ public class MainPane{
                 if (list != null) {
                     for (File file : list) {
                         Music music = AudioUtils.getAudioMetadata(file.getAbsolutePath());
-                        database.addNewMusic(music);
+                        try {
+							database.addNewMusic(music);
+						} catch (SQLException e1) {
+							Log.error("Can't add the music : "+music.title+" - Reason : "+e1.getMessage());
+						}
                     }
                 }
             }

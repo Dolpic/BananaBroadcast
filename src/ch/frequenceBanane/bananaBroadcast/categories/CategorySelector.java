@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import ch.frequenceBanane.bananaBroadcast.database.MusicDatabase;
 

@@ -60,7 +60,7 @@ public class SchedulerView {
 	private final int GRID_DEFAULT_MARGIN_LEFT = 1;
 	private final int GRID_DEFAULT_MARGIN_TOP = 1;
 	
-	public SchedulerView(Scheduler scheduler) {
+	public SchedulerView(Scheduler scheduler) throws IOException {
 		gridLabels        = new Label[7][24];
 		gridLabelsDefault = new Label[7][24];
 		gridPanes         = new Pane[7][24];
@@ -73,12 +73,7 @@ public class SchedulerView {
     	loader.setController(this);
         Stage schedulerStage = new Stage();
         schedulerStage.setTitle("Scheduler");
-        try {
-        	schedulerStage.setScene(new Scene(loader.load()));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+        schedulerStage.setScene(new Scene(loader.load()));
         
         setButtonsEvents();
         schedulerStage.show();
