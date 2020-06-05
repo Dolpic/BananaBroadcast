@@ -13,13 +13,13 @@ import java.util.TreeMap;
  * @author corentin.junod@epfl.ch
  */
 public class MusicDatabase {
-	
+
 	public static enum Kind{MUSIC, JINGLE, TAPIS, CARTOUCHE};
 	
 	private Connection connection;
 	
 	/** Create a new connection with the database */
-	public MusicDatabase(String url, String user, String password) throws SQLException{
+	public MusicDatabase(final String url, final String user, final String password) throws SQLException{
 		connection = DriverManager.getConnection(url+"?serverTimezone=UTC", user, password);
 	}
 		
@@ -39,7 +39,7 @@ public class MusicDatabase {
 		return getQueryResultMusics(queryResults);
 	}
 	
-	public ArrayList<Music> getScheduledAt(LocalDate date, int hour) throws SQLException{
+	public ArrayList<Music> getScheduledAt(final LocalDate date, final int hour) throws SQLException{
 		ResultSet queryResults = null;
 		DateTimeFormatter formater = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		String query = "SELECT * "

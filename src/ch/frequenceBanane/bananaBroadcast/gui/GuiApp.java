@@ -21,6 +21,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * Main class of the software, JavaFX Application
+ * @author Corentin
+ * @author corentin.junod@epfl.ch
+ */
 public class GuiApp extends Application{
 	
     private BananaBroadcast app;
@@ -41,17 +46,15 @@ public class GuiApp extends Application{
 	private final String databaseUser     = "root";
 	private final String databasePassword = "usbw";
     
+	/** Main functions called by JavaFX. Instantiate the whole program */
     @Override
     public void start(Stage primaryStage) throws Exception {
     	primaryStage.setTitle("BananaBroadcast");
         try {
         	app = new BananaBroadcast(databaseUrl, databaseUser, databasePassword);
         }catch(SQLException e){
-        	Log.error("Unable to connect to the database : "+e.getMessage());
-        	die();
+        	die("Unable to connect to the database : "+e.getMessage());
         }
-        app = new BananaBroadcast(databaseUrl, databaseUser, databasePassword);
-        app.initialize();
         
         playlist     = new AudioFileListView<>(app.playlist, AudioFileListView.getMusicData());
         playlistOld  = new AudioFileListView<>(app.playlistOld, AudioFileListView.getMusicData());
@@ -99,18 +102,27 @@ public class GuiApp extends Application{
         player2.afterShow();
     }
     
-    public static void loadLayout(Object controller, String path) throws IOException {
+    /**
+     * Utility function to load a JavaFX layout file (.fxml)
+     * @param controller The Object on which the layout is loaded, generally the caller itself (this)
+     * @param path The path to the .fxml layout file
+     * @throws IOException If an error occurs during the file operations
+     */
+    public static void loadLayout(final Object controller, final String path) throws IOException {
     	FXMLLoader loader = new FXMLLoader(GuiApp.class.getResource(path));
     	loader.setController(controller);
     	loader.load();
     }
     
-    public static void main(String[] args) {
-        launch(args);
-    }
-    
-    public static void die() {
+    /** Stop the execution right away with an error message*/
+    public static void die(final String msg) {
+    	Log.error(msg);
     	Platform.exit();
     	System.exit(1);
+    }
+    
+    /** Program entry point */
+    public static void main(String[] args) {
+        launch(args);
     }
 }

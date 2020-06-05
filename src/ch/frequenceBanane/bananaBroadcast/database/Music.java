@@ -13,7 +13,6 @@ public class Music extends AudioFile{
 	public String[] categories;
 	
 	/**
-	 * TODO completer cette description
 	 * Create a new Music with the provided properties
 	 * @param id
 	 * @param title
@@ -41,7 +40,7 @@ public class Music extends AudioFile{
 	 * Create a copy of the provided music
 	 * @param music The Music to copy into a new Music
 	 */
-	public Music(Music music) {
+	public Music(final Music music) {
 		super(music.id, music.title, music.duration, music.startTime, music.endTime, music.path);
 		this.artist     = music.artist;
 		this.album      = music.album;

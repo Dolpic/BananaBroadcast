@@ -28,7 +28,7 @@ public class CategorySelector {
 	 * @throws IOException If an error occurs during database transactions 
 	 * @throws SQLException If an error occurs during database transactions 
 	 */
-	public CategorySelector(final MusicDatabase database) throws IOException, SQLException{
+	public CategorySelector(final MusicDatabase database) throws SQLException{
 		musicsCategories     = database.getCategories(MusicDatabase.Kind.MUSIC);
 		jinglesCategories    = database.getCategories(MusicDatabase.Kind.JINGLE);
 		tapisCategories      = database.getCategories(MusicDatabase.Kind.TAPIS);

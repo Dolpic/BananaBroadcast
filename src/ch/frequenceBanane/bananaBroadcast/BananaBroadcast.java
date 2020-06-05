@@ -42,13 +42,13 @@ public class BananaBroadcast {
 	private boolean isInManual = false;
 	
 	/**
-	 * 
-	 * @param databaseUrl
-	 * @param databaseUser
-	 * @param databasePassword
-	 * @throws Exception 
+	 * Start the application and link it with the given database
+	 * @param databaseUrl the database URL
+	 * @param databaseUser the username to connect to the database
+	 * @param databasePassword the password associated with the given username
+	 * @throws SQLException if the connection to the database fail or an error occurs during the instantiation
 	 */
-	public BananaBroadcast(final String databaseUrl, final String databaseUser, final String databasePassword) throws Exception {
+	public BananaBroadcast(final String databaseUrl, final String databaseUser, final String databasePassword) throws SQLException {
 		try {
 			database         = new MusicDatabase(databaseUrl, databaseUser, databasePassword);
 			player1          = new MusicPlayer();
@@ -65,9 +65,11 @@ public class BananaBroadcast {
 		}catch(SQLException e) {
 			throw new SQLException("Database error occurs during main class creation : "+e.getMessage());
 		}
+		
+		initialize();
 	}
 	
-	public void initialize() throws SQLException {
+	private void initialize() throws SQLException {
 		gpio.bindGPIOFunction(1, 4, () -> player1.pause() );
 		gpio.bindGPIOFunction(1, 3, () -> player1.play() );
 		gpio.bindGPIOFunction(2, 4, () -> player2.pause() );
@@ -104,14 +106,21 @@ public class BananaBroadcast {
 		}
 	}
 	
+	/**
+	 * Switch the application to manual mode
+	 * @param isManual if true set the application to manual mode,
+	 * set the application to automatic mode otherwise
+	 */
 	public void setManual(final boolean isManual) {
 		isInManual = isManual;
 	}
 	
+	/** Start the communication with the GPIOs*/
 	public void startGPIO() {
 		gpio.start();
 	}
 	
+	/** Stop the communication with the GPIOs */
 	public void stopGPIO() {
 		gpio.close();
 	}
