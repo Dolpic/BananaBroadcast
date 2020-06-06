@@ -106,7 +106,9 @@ public class AudioFileListView<AudioType extends AudioFile> {
 	public static ArrayList<Function<AudioFile, String>> getAudioData(){
 		return new ArrayList<>(Arrays.asList(
 			(e) -> e.title,
-			(e) -> String.valueOf(e.duration)
+			(e) -> "-",
+			(e) -> String.valueOf(e.duration),
+			(e) -> String.join(",", e.categories)
 		));
 	};
 }

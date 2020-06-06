@@ -1,7 +1,7 @@
 package ch.frequenceBanane.bananaBroadcast.utils;
 
 /**
- * Simple class to unify the message through the program
+ * Simple class to unify the messages output through the program
  * @author Corentin Junod
  * @author corentin.junod@epfl.ch
  */

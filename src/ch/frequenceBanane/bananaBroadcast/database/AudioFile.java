@@ -15,6 +15,8 @@ public abstract class AudioFile {
 	public int endTime;
 	public String path;
 	
+	public String[] categories;
+	
 	/**
 	 * Create a new Audio File with the given parameters
 	 * @param id the unique ID of the file
@@ -25,13 +27,14 @@ public abstract class AudioFile {
 	 * @param path the path to the audio file
 	 */
 	public AudioFile(final int id,        final String title, final int    duration, 
-			         final int startTime, final int endTime,  final String path) {
-		this.id        = id;
-		this.title     = title;
-		this.duration  = duration;
-		this.startTime = startTime;
-		this.endTime   = endTime;
-		this.path      = path;
+			         final int startTime, final int endTime,  final String path, final String[] categories) {
+		this.id         = id;
+		this.title      = title;
+		this.duration   = duration;
+		this.startTime  = startTime;
+		this.endTime    = endTime;
+		this.path       = path;
+		this.categories = categories;
 	}
 	
 	/**

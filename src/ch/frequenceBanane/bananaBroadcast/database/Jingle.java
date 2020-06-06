@@ -8,7 +8,6 @@ package ch.frequenceBanane.bananaBroadcast.database;
 public class Jingle extends AudioFile {
 
 	public String[] panels;
-	public String[] categories;
 	
 	/**
 	 * Create a new holder for Jingle data
@@ -25,9 +24,8 @@ public class Jingle extends AudioFile {
 			      final String[] categories, final int duration, final int startTime, 
 			      final int endTime,         final String path) {
 		
-		super(id, title, duration, startTime, endTime, path);
-		this.panels     = panels;
-		this.categories = categories;
+		super(id, title, duration, startTime, endTime, path, categories);
+		this.panels = panels;
 	}
 	
 	/**

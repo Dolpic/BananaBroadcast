@@ -69,7 +69,7 @@ public class SchedulerView {
 		this.scheduler = scheduler;
 		selectedWeekMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)); 
 		
-    	FXMLLoader loader = new FXMLLoader(GuiApp.class.getResource("Scheduler.fxml"));
+    	FXMLLoader loader = new FXMLLoader(GuiApp.class.getResource("scheduler/Scheduler.fxml"));
     	loader.setController(this);
         Stage schedulerStage = new Stage();
         schedulerStage.setTitle("Scheduler");

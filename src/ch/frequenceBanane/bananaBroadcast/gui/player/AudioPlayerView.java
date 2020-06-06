@@ -58,7 +58,7 @@ public class AudioPlayerView {
 	public AudioPlayerView(final AudioPlayer audioPlayer) throws IOException {
 		this.audioPlayer = audioPlayer;
 		setOnLoadEvent();
-		GuiApp.loadLayout(this, "MusicPlayer.fxml");
+		GuiApp.loadLayout(this, "player/MusicPlayer.fxml");
 	}
 	
 	@FXML

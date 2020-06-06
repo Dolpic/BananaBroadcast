@@ -29,11 +29,10 @@ public class Music extends AudioFile{
 				 final String album,    final String genre,     final String[] categories,
 				 final int    duration, final int    startTime, final int      endTime, 
 				 final String path) {
-		super(id, title, duration, startTime, endTime, path);
+		super(id, title, duration, startTime, endTime, path, categories);
 		this.artist     = artist;
 		this.album      = album;
 		this.genre      = genre;
-		this.categories = categories;
 	}
 	
 	/**
@@ -41,10 +40,9 @@ public class Music extends AudioFile{
 	 * @param music The Music to copy into a new Music
 	 */
 	public Music(final Music music) {
-		super(music.id, music.title, music.duration, music.startTime, music.endTime, music.path);
+		super(music.id, music.title, music.duration, music.startTime, music.endTime, music.path, music.categories);
 		this.artist     = music.artist;
 		this.album      = music.album;
 		this.genre      = music.genre;
-		this.categories = music.categories;
 	}
 }
