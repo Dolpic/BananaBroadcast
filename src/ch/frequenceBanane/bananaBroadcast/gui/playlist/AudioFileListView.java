@@ -41,7 +41,7 @@ public class AudioFileListView<AudioType extends AudioFile> {
 	public AudioFileListView(final Playlist<AudioType> playlist, final ArrayList<Function<AudioType, String>> getAudioFileData) throws IOException {
 		this.playlist  = playlist;
 		this.getAudioFileData = getAudioFileData;
-		GuiApp.loadLayout(this, "TableView.fxml");
+		GuiApp.loadLayout(this, "playlist/TableView.fxml");
 	}
 	
 	@FXML
@@ -89,6 +89,14 @@ public class AudioFileListView<AudioType extends AudioFile> {
 			});
 		}
 	}
+	
+	/**
+	 * Enable or disable the action of sorting the list by clicking on the column headers
+	 * @param isSortable The columns can be sorted if and only if the value is true
+	 */
+	public void setSortable(final boolean isSortable) {
+		tableView.getColumns().forEach( (elem) -> elem.setSortable(isSortable));
+	}
 
 	public VBox getRootLayout() {
 		return rootLayout;
@@ -108,7 +116,7 @@ public class AudioFileListView<AudioType extends AudioFile> {
 			(e) -> e.title,
 			(e) -> "-",
 			(e) -> String.valueOf(e.duration),
-			(e) -> String.join(",", e.categories)
+			(e) -> e.categories.length == 0 ? "" : String.join(",", e.categories)
 		));
 	};
 }

@@ -1,7 +1,6 @@
 package ch.frequenceBanane.bananaBroadcast;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 import ch.frequenceBanane.bananaBroadcast.GPIO.*;
 import ch.frequenceBanane.bananaBroadcast.audio.*;
@@ -9,6 +8,7 @@ import ch.frequenceBanane.bananaBroadcast.categories.*;
 import ch.frequenceBanane.bananaBroadcast.database.*;
 import ch.frequenceBanane.bananaBroadcast.scheduling.*;
 import ch.frequenceBanane.bananaBroadcast.utils.CartouchesArray;
+import ch.frequenceBanane.bananaBroadcast.utils.Log;
 
 /**
  * Main class of the non-GUI application.
@@ -17,6 +17,8 @@ import ch.frequenceBanane.bananaBroadcast.utils.CartouchesArray;
  * @author corentin.junod@epfl.ch
  */
 public class BananaBroadcast {
+	
+	public static final int DEFAULT_PLAYLIST_SIZE = 20;
 	
 	public final MusicPlayer player1;
 	public final MusicPlayer player2;
@@ -35,7 +37,6 @@ public class BananaBroadcast {
 	
 	public final CategorySelector categorySelector;
 	
-	private final int playlisteSize = 20;
 	private final byte[] gpioIp     = {10, 10, 2, (byte) 235};
 	private final int gpioPort      = 93;
 	
@@ -93,9 +94,13 @@ public class BananaBroadcast {
 				player1.play();
 		});
 		
-		playlist.addAtEnd(scheduler.getNextMusics(playlisteSize));
-		databaseList.addAtEnd(new ArrayList<AudioFile>(database.getAllMusics()));
-		
+		loadMusics();
+	}
+	
+	/** Reload the playlist and load the two next songs into the players */
+	public void loadMusics() {
+		playlist.removeAll();
+		playlist.addAtEnd(scheduler.getNextMusics(DEFAULT_PLAYLIST_SIZE));
 		Music next = playlist.getNext();
 		if(next != null) {
 			player1.loadMusic(next);

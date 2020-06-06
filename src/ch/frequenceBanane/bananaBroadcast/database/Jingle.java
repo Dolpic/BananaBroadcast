@@ -34,7 +34,6 @@ public class Jingle extends AudioFile {
 	 */
 	public Jingle(final Jingle jingle) {
 		super(jingle);
-		this.panels     = jingle.panels;
-		this.categories = jingle.categories;
+		this.panels = jingle.panels;
 	}
 }

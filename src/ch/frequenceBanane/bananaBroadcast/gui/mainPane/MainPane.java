@@ -51,6 +51,7 @@ public class MainPane{
 	
 	@FXML private Button schedulerButton;
 	@FXML private Button addMusicButton;
+	@FXML private Button refreshPlaylistButton;
 	@FXML private ToggleButton manualButton;
 	
 	private final CartouchesArray jingles;
@@ -176,6 +177,13 @@ public class MainPane{
             @Override
             public void handle(final ActionEvent e) {
             	app.setManual(manualButton.isSelected());
+            }
+        });
+		
+		refreshPlaylistButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(final ActionEvent e) {
+            	app.loadMusics();
             }
         });
 	}

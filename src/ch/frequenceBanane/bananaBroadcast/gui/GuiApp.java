@@ -93,6 +93,8 @@ public class GuiApp extends Application{
         playlist.setOnElementDoubleClick(loadAudioFileInPlayer);
         playlistOld.setOnElementDoubleClick(loadAudioFileInPlayer);
         databaseList.setOnElementDoubleClick(loadAudioFileInPlayer);
+        
+        playlist.setSortable(false);
 
         Scene scene = new Scene(mainPane.getRootLayout());
         primaryStage.setScene(scene);

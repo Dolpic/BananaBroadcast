@@ -10,7 +10,6 @@ public class Music extends AudioFile{
 	public String artist;
 	public String album;
 	public String genre;
-	public String[] categories;
 	
 	/**
 	 * Create a new Music with the provided properties

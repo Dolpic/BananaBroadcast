@@ -46,6 +46,8 @@ public class AudioPlayerView {
 	@FXML protected Label elapsed;
 	@FXML protected Label artist;
 	
+	private final int WAVEFORM_SCALE_FACTOR = 3;
+	
 	protected AudioPlayer audioPlayer;
 	
 	protected AudioPlayerView(){}
@@ -104,7 +106,7 @@ public class AudioPlayerView {
 		if(width == 0 || height == 0)
 			return;
 		
-		ByteArrayOutputStream outputStream = AudioUtils.getWaveform(width*6, height*6, audioPlayer.getCurrentAudioFile());
+		ByteArrayOutputStream outputStream = AudioUtils.getWaveform(width*WAVEFORM_SCALE_FACTOR, height*WAVEFORM_SCALE_FACTOR, audioPlayer.getCurrentAudioFile());
 		if(outputStream != null) {
 			ByteArrayInputStream stream   = new ByteArrayInputStream(outputStream.toByteArray());
 			Image background = new Image(stream, width, height, false, true);

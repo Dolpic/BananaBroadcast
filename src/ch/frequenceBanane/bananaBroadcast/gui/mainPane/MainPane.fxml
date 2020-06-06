@@ -16,6 +16,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox fx:id="mainPaneRoot" prefHeight="830.0" prefWidth="1886.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
@@ -60,7 +61,7 @@
                               <Separator orientation="VERTICAL" prefHeight="223.0" prefWidth="15.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
                            </children>
                         </GridPane>
-                        <GridPane>
+                        <GridPane prefHeight="130.0" prefWidth="585.0">
                            <columnConstraints>
                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
                            </columnConstraints>
@@ -70,17 +71,38 @@
                            </rowConstraints>
                            <children>
                               <Pane fx:id="bottomTopPane" prefHeight="157.0" prefWidth="846.0" />
-                              <Pane fx:id="bottomBottomPane" prefHeight="129.0" prefWidth="846.0" GridPane.rowIndex="1" />
+                              <Pane fx:id="bottomBottomPane" prefHeight="312.0" prefWidth="585.0" GridPane.rowIndex="1" />
                            </children>
                         </GridPane>
                     </items>
                   </SplitPane>
-                  <Pane prefHeight="200.0" prefWidth="200.0">
+                  <GridPane alignment="CENTER" prefHeight="158.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity" percentWidth="40.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="40.0" prefWidth="100.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity" percentWidth="40.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
                      <children>
-                        <ToggleButton fx:id="manualButton" layoutX="14.0" layoutY="15.0" mnemonicParsing="false" prefHeight="71.0" prefWidth="113.0" text="Mode Manuel" />
-                        <Button fx:id="schedulerButton" layoutX="485.0" layoutY="15.0" mnemonicParsing="false" prefHeight="71.0" prefWidth="88.0" text="Scheduler" />
+                        <StackPane GridPane.columnIndex="2" GridPane.hgrow="ALWAYS">
+                           <children>
+                              <Button fx:id="refreshPlaylistButton" mnemonicParsing="false" prefHeight="31.0" prefWidth="134.0" text="Actualiser la playliste" />
+                           </children>
+                        </StackPane>
+                        <StackPane>
+                           <children>
+                              <ToggleButton fx:id="manualButton" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="53.0" prefWidth="131.0" text="Mode Manuel" />
+                           </children>
+                        </StackPane>
+                        <StackPane GridPane.columnIndex="1">
+                           <children>
+                              <Button fx:id="schedulerButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="54.0" prefWidth="132.0" text="Scheduler" />
+                           </children>
+                        </StackPane>
                      </children>
-                  </Pane>
+                  </GridPane>
                </children>
             </VBox>
             <TabPane prefHeight="805.0" prefWidth="709.0" side="BOTTOM" tabClosingPolicy="UNAVAILABLE" HBox.hgrow="ALWAYS">
