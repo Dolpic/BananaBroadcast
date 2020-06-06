@@ -18,15 +18,27 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
+/**
+ * Create a view of list holding AudioFIles
+ * @author Corentin
+ * @author corentin.junod@epfl.ch
+ * @param <AudioType> AudioFIle or one of its subtypes
+ */
 public class AudioFileListView<AudioType extends AudioFile> {
 
 	@FXML private VBox rootLayout;
 	@FXML private TableView<AudioType> tableView;
 	
-	ArrayList<Function<AudioType, String>> getAudioFileData;
-	private Playlist<AudioType> playlist;
+	private final ArrayList<Function<AudioType, String>> getAudioFileData;
+	private final Playlist<AudioType> playlist;
 	
-	public AudioFileListView(Playlist<AudioType> playlist, ArrayList<Function<AudioType, String>> getAudioFileData) throws IOException {
+	/**
+	 * Instantiate the view of the list
+	 * @param playlist The playlist linked with the view
+	 * @param getAudioFileData A function describing how to retrieve datas from the given AudioType
+	 * @throws IOException If an error occurs during the layout file reading
+	 */
+	public AudioFileListView(final Playlist<AudioType> playlist, final ArrayList<Function<AudioType, String>> getAudioFileData) throws IOException {
 		this.playlist  = playlist;
 		this.getAudioFileData = getAudioFileData;
 		GuiApp.loadLayout(this, "TableView.fxml");
@@ -44,7 +56,12 @@ public class AudioFileListView<AudioType extends AudioFile> {
 		updateView();
 	}
 	
-	public void setOnElementDoubleClick(Consumer<AudioFile> consumer) {		
+	/**
+	 * Give a consumer triggered every time an element on the list is double clicked
+	 * @param consumer the consumer to trigger. Its parameters is the element in the l
+	 * list on which the double click has occurred
+	 */
+	public void setOnElementDoubleClick(final Consumer<AudioFile> consumer) {		
 		tableView.setOnMouseClicked(event -> {
 			AudioFile selected = tableView.getSelectionModel().getSelectedItem();
 	        if (event.getButton() == MouseButton.PRIMARY && 
@@ -59,13 +76,11 @@ public class AudioFileListView<AudioType extends AudioFile> {
 	public void updateView(){
 		
 		tableView.setItems(FXCollections.observableList(playlist.getList()));
-		//C'est dégoutant
 		ObservableList<?> columnList = tableView.getColumns();
 		
 		TableColumn<AudioType, String> col;
 		for(int i=0; i<getAudioFileData.size(); i++) {
 			final int index = i;
-			//Quel enfer
 			col = (TableColumn<AudioType, String>) columnList.get(index);
 			col.setCellValueFactory(new Callback<>() {
 				public ObservableValue<String> call(CellDataFeatures<AudioType, String> p) {

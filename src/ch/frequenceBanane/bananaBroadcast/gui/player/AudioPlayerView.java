@@ -17,6 +17,11 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Line;
 
+/**
+ * Graphical view of an audioPlayer
+ * @author Corentin
+ * @author corentin.junod@epfl.ch
+ */
 public class AudioPlayerView {
 	
 	@FXML private GridPane playerRoot;
@@ -45,7 +50,12 @@ public class AudioPlayerView {
 	
 	protected AudioPlayerView(){}
 	
-	public AudioPlayerView(AudioPlayer audioPlayer) throws IOException {
+	/**
+	 * Create a new AudioPlayerView
+	 * @param audioPlayer The AudioPlayer to graphically show
+	 * @throws IOException If an error occurs during the layout file reading
+	 */
+	public AudioPlayerView(final AudioPlayer audioPlayer) throws IOException {
 		this.audioPlayer = audioPlayer;
 		setOnLoadEvent();
 		GuiApp.loadLayout(this, "MusicPlayer.fxml");
@@ -73,14 +83,17 @@ public class AudioPlayerView {
 		setEvents();
     } 
     
+	/** Method to call after the primaryStage is showed */
     public void afterShow() {
 		loadWaveform();
     }
 	
+    /** @return The base Layout of the object */
 	public GridPane getRootLayout() {
 		return playerRoot;
 	}
 	
+	/** Load the waveform of the AudioFile and set it as a background */
 	public void loadWaveform(){
 		if(audioPlayer.getCurrentAudioFile() == null)
 			return;
@@ -100,6 +113,7 @@ public class AudioPlayerView {
 		}
 	}
 	
+	/** Start the timer of the player */
 	public void startTimer() {		
 		Thread thread = new Thread() {
 			public void run() {
@@ -114,6 +128,7 @@ public class AudioPlayerView {
 		thread.start();
 	}
 	
+	/** Set the title of the player */
 	public void setTitle() {
 		Platform.runLater( () ->{
 			if(audioPlayer.getCurrentAudioFile() != null)
@@ -121,37 +136,43 @@ public class AudioPlayerView {
 		});
 	}
 	
+	/** Reload the player */
 	public void reload() {
 		audioPlayer.reload();
 	}
 	
+	/** Apply the style when the repetition is activated */
 	public void setRepeatedActivatedState() {
 		button_repeat_region.getStyleClass().add("button_repeat_activated");
 		button_repeat_region.getStyleClass().removeAll("button_play_region_play");
 	}
 	
+	/** Apply the style when the repetition is deactivated */
 	public void setRepeatedDisabledState() {
 		button_repeat_region.getStyleClass().removeAll("button_repeat_activated");
 		button_repeat_region.getStyleClass().add("button_play_region_stop");
 	}
 	
+	/** Apply the style when the player is playing */
 	public void setPlayState() {
 		button_play_region.getStyleClass().removeAll("button_play_region_play");
 		button_play_region.getStyleClass().add("button_play_region_pause");
 	}
 	
+	/** Apply the style when the player is on pause */
 	public void setPauseState() {
 		button_play_region.getStyleClass().removeAll("button_play_region_pause");
 		button_play_region.getStyleClass().add("button_play_region_play");
 	}
 	
+	/** Update the timers shown in the player */
 	public void updateTimers() {
 		Platform.runLater( () ->
 			remaining.setText("- "+formatTime(audioPlayer.getRemainingTime()))
 		);
 	}
 	
-	public static String formatTime(double duration) {
+	protected static String formatTime(double duration) {
 		int min = (int) Math.floor(duration/60);
 		duration -= min*60;
 		int sec = (int) Math.floor(duration);

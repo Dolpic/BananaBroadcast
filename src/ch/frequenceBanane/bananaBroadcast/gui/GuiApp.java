@@ -19,6 +19,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 /**
@@ -113,6 +114,20 @@ public class GuiApp extends Application{
     	loader.setController(controller);
     	loader.load();
     }
+    
+    /**
+     * Automatically resize the given innerPane to the size of the targetPane
+     * @param innerPane the innerPane to resize automatically
+     * @param targetPane the parent pane (container of the child)
+     */
+	public static void makeResponsive(final Pane innerPane, final Pane targetPane) {
+		innerPane.widthProperty().addListener((obs, oldValue, newValue) -> {
+			targetPane.setPrefWidth(innerPane.getWidth());
+		});
+		innerPane.heightProperty().addListener((obs, oldValue, newValue) -> {
+			targetPane.setPrefHeight(innerPane.getHeight());
+		});
+	}
     
     /** Stop the execution right away with an error message*/
     public static void die(final String msg) {

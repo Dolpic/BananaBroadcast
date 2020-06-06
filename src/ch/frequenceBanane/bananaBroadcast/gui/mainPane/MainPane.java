@@ -25,6 +25,12 @@ import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+/**
+ * The main layout of the app.
+ * Contains all others GUI part of the program
+ * @author Corentin
+ * @author corentin.junod@epfl.ch
+ */
 public class MainPane{
 
 	@FXML private Pane topLeftPane;
@@ -47,20 +53,26 @@ public class MainPane{
 	@FXML private Button addMusicButton;
 	@FXML private ToggleButton manualButton;
 	
-	private CartouchesArray jingles;
-	private Stage primaryStage;
-	private Scheduler scheduler;
-	private MusicDatabase database;
-	private BananaBroadcast app;
-	private ArrayList<JinglePlayerView> jinglesPlayer = new ArrayList<JinglePlayerView>();
+	private final CartouchesArray jingles;
+	private final Stage primaryStage;
+	private final Scheduler scheduler;
+	private final MusicDatabase database;
+	private final BananaBroadcast app;
+	private final ArrayList<JinglePlayerView> jinglesPlayer = new ArrayList<JinglePlayerView>();
 	
+	/**
+	 * Create a new main layout for the app
+	 * @param app The app to which the layout must be created
+	 * @param primaryStage The primaryStage given by JavaFX
+	 * @throws IOException If an error occurs during layout file reading
+	 */
 	public MainPane(BananaBroadcast app, Stage primaryStage) throws IOException{
-		this.jingles = app.jingles;
-		this.scheduler = app.scheduler;
+		this.jingles      = app.jingles;
+		this.scheduler    = app.scheduler;
 		this.primaryStage = primaryStage;
-		this.database = app.database;
-		this.app = app;
-        GuiApp.loadLayout(this, "MainPane.fxml");
+		this.database     = app.database;
+		this.app          = app;
+        GuiApp.loadLayout(this, "mainPane/MainPane.fxml");
 	}
 	
 	@FXML
@@ -68,65 +80,60 @@ public class MainPane{
 		for(int i=0; i<jingles.size(); i++) {		
 			JinglePlayerView cur = new JinglePlayerView(jingles.get(i));
 			jinglesPlayer.add(cur);
-			tableJingles.add(cur.getRootLayout(), 
-							i%tableJingles.getColumnCount(), 
-							i/tableJingles.getColumnCount());
+			tableJingles.add(
+				cur.getRootLayout(), 
+				i%tableJingles.getColumnCount(), 
+				i/tableJingles.getColumnCount()
+			);
 		}
 		loadEvents();
 	}
 	
+	/** Method to call after the primaryStage is showed */
 	public void afterShow() {
 		for(int i=0; i<jinglesPlayer.size(); i++) {
 			jinglesPlayer.get(i).loadWaveform();
 		}
 	}
 	
-	public void addTopLeftNode(Pane pane) {
+	public void addTopLeftNode(final Pane pane) {
 		topLeftPane.getChildren().add(pane);
-		makeResponsive(topLeftPane, pane);
+		GuiApp.makeResponsive(topLeftPane, pane);
 	}
 	
-	public void addTopRightNode(Pane pane) {
+	public void addTopRightNode(final Pane pane) {
 		topRightPane.getChildren().add(pane);
-		makeResponsive(topRightPane, pane);
+		GuiApp.makeResponsive(topRightPane, pane);
 	}
 	
-	public void addBottomTopNode(Pane pane) {
+	public void addBottomTopNode(final Pane pane) {
 		bottomTopPane.getChildren().add(pane);
-		makeResponsive(bottomTopPane, pane);
+		GuiApp.makeResponsive(bottomTopPane, pane);
 	}
 	
-	public void addBottomBottomNode(Pane pane) {
+	public void addBottomBottomNode(final Pane pane) {
 		bottomBottomPane.getChildren().add(pane);
-		makeResponsive(bottomBottomPane, pane);
+		GuiApp.makeResponsive(bottomBottomPane, pane);
 	}
 	
-	public void addMainPlayerPane(Pane pane) {
+	public void addMainPlayerPane(final Pane pane) {
 		mainPlayerPane.getChildren().add(pane);
-		makeResponsive(mainPlayerPane, pane);
+		GuiApp.makeResponsive(mainPlayerPane, pane);
 	}
 	
-	public void addDatabaseListPane(Pane pane) {
+	public void addDatabaseListPane(final Pane pane) {
 		databaseListPane.getChildren().add(pane);
-		makeResponsive(databaseListPane, pane);
+		GuiApp.makeResponsive(databaseListPane, pane);
 	}
 	
-	public void addCategorySelector(Pane pane) {
+	public void addCategorySelector(final Pane pane) {
 		categorySelectorPane.getChildren().add(pane);
-		makeResponsive(categorySelectorPane, pane);
+		GuiApp.makeResponsive(categorySelectorPane, pane);
 	}
 	
+	/** @return The base Layout of the object */
 	public VBox getRootLayout() {
 		return mainPaneRoot;
-	}
-	
-	private void makeResponsive(Pane innerPane, Pane targetPane) {
-		innerPane.widthProperty().addListener((obs, oldValue, newValue) -> {
-			targetPane.setPrefWidth(innerPane.getWidth());
-		});
-		innerPane.heightProperty().addListener((obs, oldValue, newValue) -> {
-			targetPane.setPrefHeight(innerPane.getHeight());
-		});
 	}
 	
 	private void loadEvents() {
