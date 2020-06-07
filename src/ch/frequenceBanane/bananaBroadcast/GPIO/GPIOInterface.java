@@ -76,16 +76,16 @@ public class GPIOInterface extends Thread{
 	
 	private void processReceivedLine(final String line) {
 		String[] parts = line.split(" ");
-		final int GPIO_Id = Integer.parseInt(parts[1]);
-		final String pins = parts[2];
+		final String header = parts[0];
+		final int GPIO_Id   = Integer.parseInt(parts[1]);
+		final String pins   = parts[2];
 		
-		if(parts[0].equals("GPO")) {
+		if(header.equals("GPO")) {
 			
 			for(int pin=0; pin<pinPerGPIO; pin++) {
 				// 'L' means a signal changed from high to low, meaning a key is released
-				if(pins.charAt(pin) == 'L') {
+				if(pins.charAt(pin) == 'L')
 					triggerFunction(GPIO_Id, pin);
-				}
 			}
 		}
 	}

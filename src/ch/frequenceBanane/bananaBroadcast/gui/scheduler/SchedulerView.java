@@ -114,7 +114,7 @@ public class SchedulerView {
 		for(int day=0; day<7; day++) {
 			for(int hour=0; hour<24; hour++) {
 				ArrayList<String> curDayCategories = scheduler.getPlanningOf(selectedWeekMonday.plusDays(day), hour);
-				String content = (curDayCategories == null ? "" : String.join(", ", curDayCategories));
+				String content = String.join(", ", curDayCategories);
 				gridLabels[day][hour].setText(content);
 			}
 		}
@@ -124,7 +124,7 @@ public class SchedulerView {
 		for(int day=0; day<7; day++) {
 			for(int hour=0; hour<24; hour++) {
 				ArrayList<String> curDayCategories = scheduler.getDefaultPlanningOf(day, hour);
-				String content = (curDayCategories == null ? "" : String.join(", ", curDayCategories));
+				String content = String.join(", ", curDayCategories);
 				gridLabelsDefault[day][hour].setText(content);
 			}
 		}

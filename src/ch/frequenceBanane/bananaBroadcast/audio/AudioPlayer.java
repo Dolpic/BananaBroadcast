@@ -37,10 +37,8 @@ public class AudioPlayer{
 	 * @throws IllegalArgumentException if the music is null, or its path is empty
 	 */
 	public boolean load(final AudioFile file){
-		if(file == null)
-			throw new IllegalArgumentException("Music parameter is null");
-		if(file.path.equals(""))
-			throw new IllegalArgumentException("Music path is null");
+		if(file == null || file.path.equals(""))
+			throw new IllegalArgumentException("Music parameter is null or the path is invalid");
 		
 		audioFile = file;
 		AudioInputStream inputStream;

@@ -140,7 +140,7 @@ public class Scheduler {
 		LocalDateTime date = LocalDateTime.now();
 	
 		try {
-			while(hoursToFill > 0) {
+			for(;hoursToFill > 0; hoursToFill--) {
 				final LocalDate curDate = date.toLocalDate();
 				final int curHours      = date.getHour();
 				ArrayList<String> planning = getPlanningOf(curDate, curHours);
@@ -162,7 +162,6 @@ public class Scheduler {
 						);
 					}
 				date = date.plusHours(1);
-				hoursToFill--;
 			}
 		} catch (SQLException e) {
 			Log.error("Database error : Unable to fill the scheduler : "+e.getMessage());

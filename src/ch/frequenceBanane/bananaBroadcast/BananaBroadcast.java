@@ -75,25 +75,21 @@ public class BananaBroadcast {
 		gpio.bindGPIOFunction(2, 4, () -> player2.pause() );
 		gpio.bindGPIOFunction(2, 3, () -> player2.play() );
 		
-		player1.addOnFinishEvent( () -> {
-			AudioFile next = playlist.getNext();
-			player1.close();
-			playlistOld.addAtEnd(player1.getCurrentAudioFile());
-			player1.load(next);
-			if(!isInManual)
-				player2.play();
-		});
-		
-		player2.addOnFinishEvent( () -> {
-			AudioFile next = playlist.getNext();
-			player2.close();
-			playlistOld.addAtEnd(player2.getCurrentAudioFile());
-			player2.load(next);
-			if(!isInManual)
-				player1.play();
-		});
+		initializePlayer(player1, player2);
+		initializePlayer(player2, player1);
 		
 		loadMusics();
+	}
+	
+	private void initializePlayer(MusicPlayer player, MusicPlayer nextPlayerToPlay) {
+		player.addOnFinishEvent( () -> {
+			AudioFile next = playlist.getNext();
+			player.close();
+			playlistOld.addAtEnd(player.getCurrentAudioFile());
+			player.load(next);
+			if(!isInManual)
+				nextPlayerToPlay.play();
+		});
 	}
 	
 	/** Reload the playlist and load the two next songs into the players */

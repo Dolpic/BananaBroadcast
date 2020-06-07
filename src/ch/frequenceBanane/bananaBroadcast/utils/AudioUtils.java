@@ -31,7 +31,7 @@ public class AudioUtils {
 		MP3,
 		WAV
 	}
-	
+
 	/**
 	 * Create a waveform of a given AudioFile, as a streamed PNG file
 	 * @param imageWidth the width of the image to generate
@@ -46,53 +46,42 @@ public class AudioUtils {
 		if(audioFile == null || audioFile.path == "")
 			throw new IllegalArgumentException("Given AudioFile is null or has no path");
 		
-		PersonalAudioFormat f = PersonalAudioFormat.getDefaultAudioFormat();
-		AudioInputStream inputStream;
 		try {
-			inputStream = AudioUtils.getAudioFileStream(f, audioFile.path);
-		} catch (Exception e1) {
-			Log.error("Unable to open file : "+audioFile.path+" | Reason : "+e1.getMessage());
-			return null;
-		}
-		
-		byte[] dataByte = new byte[f.getFrameSize()];
-		
-		int framesToSkip  = (int)Math.floor(inputStream.getFrameLength()/imageWidth/2)*2;
-		double ratioY = imageHeight/Math.pow(2, f.getSampleSizeInBits());
-		
-		BufferedImage output = createImageWithBackground(imageWidth, imageHeight, WAVEFORM_BACKGROUND_COLOR);
-		
-		for(int i=0; i<imageWidth && dataByte.length != 0; i++) {
-			try {
-				inputStream.read(dataByte, 0, f.getFrameSize());
+			PersonalAudioFormat f = PersonalAudioFormat.getDefaultAudioFormat();
+			AudioInputStream inputStream = AudioUtils.getAudioFileStream(f, audioFile.path);
+			
+			byte[] dataByte = new byte[f.getFrameSize()];
+			
+			int framesToSkip  = (int)Math.floor(inputStream.getFrameLength()/imageWidth/2)*2;
+			double ratioY = imageHeight/Math.pow(2, f.getSampleSizeInBits());
+			
+			BufferedImage output = createImageWithBackground(imageWidth, imageHeight, WAVEFORM_BACKGROUND_COLOR);
+			
+			for(int curX=0; curX<imageWidth; curX++) {
+			
+				inputStream.read(dataByte, 0, dataByte.length);
 				inputStream.skip(f.getFrameSize()*framesToSkip);
-			} catch (IOException e) {
-				Log.error("Unable to read "+f.getFrameSize()+" bytes from the file "+audioFile.path);
-				return null;
-			}
 
-			int dataRight = 0;
-			int dataLeft  = 0;
+				int dataRight = 0;
+				int dataLeft  = 0;
 
-			if(dataByte.length != 0) {
-				
-				for(int j=0; j<f.getSampleSize(); j++) {
-					dataLeft += dataByte[j]<<(8*j);
-					if(f.getChannels() == 2) {
-						dataRight += dataByte[j+ f.getSampleSize()]<<(8*j);
+				if(dataByte.length != 0) {
+					
+					for(int j=0; j<f.getSampleSize(); j++) {
+						dataLeft += dataByte[j]<<(8*j);
+						if(f.getChannels() == 2) 
+							dataRight += dataByte[j+ f.getSampleSize()]<<(8*j);
 					}
+					
+					drawLineFromCenterToTopAndBottom(output, curX, Math.abs(dataLeft*ratioY), Math.abs(dataRight*ratioY));
 				}
-				
-				drawLineFromCenterToTopAndBottom(output, i, Math.abs(dataLeft*ratioY), Math.abs(dataRight*ratioY));
 			}
-		}
-
-		try {
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			ImageIO.write(output, "png", outputStream);
 			return outputStream;
-		} catch (IOException e) {
-			Log.error("Unable to write to write the waveform to the output stream");
+			
+		}catch(Exception e) {
+			Log.error("Exception occurs during waveform generation : "+e.getMessage());
 			return null;
 		}
 	}
@@ -125,15 +114,13 @@ public class AudioUtils {
 				Bitstream bitStream = new Bitstream(new FileInputStream(audioFile));
 				Decoder decoder     = new Decoder();
 				ByteArrayOutputStream output = new ByteArrayOutputStream();
-				Header frameHeader;
 				
 	        	byte[] bytes = new byte[2];
 	        	
-	        	frameHeader = bitStream.readFrame();
+	        	Header frameHeader = bitStream.readFrame();
 	        	while (frameHeader != null){
 	        		
 					short[] next = ((SampleBuffer)decoder.decodeFrame(frameHeader, bitStream)).getBuffer();
-		            inputStreamSize += next.length*2;
 		            
 		            for(int i=0; i<next.length; i++) {
 		            	bytes[0] = (byte) next[i];
@@ -141,6 +128,7 @@ public class AudioUtils {
 		            	output.write(bytes);
 		            }
 		            
+		            inputStreamSize += next.length*2;
 		            bitStream.closeFrame();
 					frameHeader = bitStream.readFrame();
 				}
@@ -156,7 +144,7 @@ public class AudioUtils {
 				break;
 				
 			default:
-				throw new IllegalArgumentException("Invalide file format");
+				throw new IllegalArgumentException("Invalid file format");
 		}
 		
 		return AudioSystem.getAudioInputStream(targetFormat, new AudioInputStream(rawInputStream, targetFormat, inputStreamSize)); 

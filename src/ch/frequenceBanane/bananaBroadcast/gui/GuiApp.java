@@ -81,9 +81,8 @@ public class GuiApp extends Application{
     
     private void initialize() {
         app.categorySelector.setOnSelectedCategoriesChange((selected) -> {
-        	ArrayList<AudioFile> newList = null;
 			try {
-				newList = app.database.getFromCategoriesAndKind(Kind.MUSIC, selected);
+				ArrayList<AudioFile> newList = app.database.getFromCategoriesAndKind(Kind.MUSIC, selected);
 	        	app.databaseList.removeAll();
 	        	app.databaseList.addAtEnd(newList);
 	        	databaseList.updateView();
