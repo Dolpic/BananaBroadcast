@@ -75,6 +75,7 @@ public class AudioUtils {
 			int dataLeft  = 0;
 
 			if(dataByte.length != 0) {
+				
 				for(int j=0; j<f.getSampleSize(); j++) {
 					dataLeft += dataByte[j]<<(8*j);
 					if(f.getChannels() == 2) {
@@ -82,22 +83,26 @@ public class AudioUtils {
 					}
 				}
 				
-				for(int j=0; j<=Math.abs(dataLeft*ratioY); j++)
-					output.setRGB(i, imageHeight/2-j, WAVEFORM_COLOR);
-				
-				for(int j=0; j<=Math.abs(dataRight*ratioY); j++)
-					output.setRGB(i, imageHeight/2+j -1, WAVEFORM_COLOR);
+				drawLineFromCenterToTopAndBottom(output, i, Math.abs(dataLeft*ratioY), Math.abs(dataRight*ratioY));
 			}
 		}
 
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			ImageIO.write(output, "png", outputStream);
 			return outputStream;
 		} catch (IOException e) {
 			Log.error("Unable to write to write the waveform to the output stream");
 			return null;
 		}
+	}
+	
+	private static void drawLineFromCenterToTopAndBottom(final BufferedImage image, final int x, final double towardTop, final double towardBottom) {
+		for(int y=0; y<=towardTop; y++)
+			image.setRGB(x, image.getHeight()/2-y, WAVEFORM_COLOR);
+		
+		for(int y=0; y<=towardBottom; y++)
+			image.setRGB(x, image.getHeight()/2+y -1, WAVEFORM_COLOR);
 	}
 	
 	/**
