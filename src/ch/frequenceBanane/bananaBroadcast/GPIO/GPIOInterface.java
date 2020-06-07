@@ -65,25 +65,28 @@ public class GPIOInterface extends Thread{
 			
 			while(running) {
 				if(input.ready()) {
-					String[] parts = input.readLine().split(" ");
-					final int GPIO_Id = Integer.parseInt(parts[1]);
-					final String pins = parts[2];
-					
-					//If a change in GPOs is received
-					if(parts[0].equals("GPO")) {
-						
-						for(int pin=0; pin<pinPerGPIO; pin++) {
-							// 'L' means a signal changed from high to low, meaning a key is released
-							if(pins.charAt(pin) == 'L') {
-								triggerFunction(GPIO_Id, pin);
-							}
-						}
-					}
+					processReceivedLine(input.readLine());
 				}
 			}
 			socket.close();
 		} catch (IOException e) {
 			Log.error("Error in GPIO connexion : "+e.getMessage());
+		}
+	}
+	
+	private void processReceivedLine(final String line) {
+		String[] parts = line.split(" ");
+		final int GPIO_Id = Integer.parseInt(parts[1]);
+		final String pins = parts[2];
+		
+		if(parts[0].equals("GPO")) {
+			
+			for(int pin=0; pin<pinPerGPIO; pin++) {
+				// 'L' means a signal changed from high to low, meaning a key is released
+				if(pins.charAt(pin) == 'L') {
+					triggerFunction(GPIO_Id, pin);
+				}
+			}
 		}
 	}
 

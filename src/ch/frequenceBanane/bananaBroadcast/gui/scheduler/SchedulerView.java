@@ -147,16 +147,7 @@ public class SchedulerView {
 							selectedPaneHour = hour;
 							
 							catList.getChildren().clear();
-							ArrayList<String> allCategories = scheduler.getCategories();
-							for(int i=0; i<allCategories.size(); i++) {
-								CheckBox checkbox = new CheckBox();
-								checkbox.setText(allCategories.get(i));
-								setCheckboxEvent(checkbox);
-								if(currentCategoriesSelection.contains(allCategories.get(i))) {
-									checkbox.setSelected(true);
-								}
-								catList.getChildren().add(checkbox);
-							}
+							createCheckboxesWithCategories(scheduler.getCategories(), catList);
 						}
 					}
 		    	}
@@ -164,6 +155,18 @@ public class SchedulerView {
 		        selectPane(pane);
 		    }
 		});
+	}
+	
+	private void createCheckboxesWithCategories(ArrayList<String> categories, VBox container) {
+		for(int i=0; i<categories.size(); i++) {
+			CheckBox checkbox = new CheckBox();
+			checkbox.setText(categories.get(i));
+			setCheckboxEvent(checkbox);
+			if(currentCategoriesSelection.contains(categories.get(i))) {
+				checkbox.setSelected(true);
+			}
+			container.getChildren().add(checkbox);
+		}
 	}
 	
 	private void selectPane(Pane pane) {
