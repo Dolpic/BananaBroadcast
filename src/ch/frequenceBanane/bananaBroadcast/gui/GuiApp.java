@@ -79,7 +79,6 @@ public class GuiApp extends Application{
 				Log.error("Unable to update the categorie lists : "+e.getMessage());
 			}
         });
-        
         mainPane.addTopLeftNode(player1.getRootLayout());
         mainPane.addTopRightNode(player2.getRootLayout());
         mainPane.addMainPlayerPane(mainPlayer.getRootLayout());
@@ -99,10 +98,12 @@ public class GuiApp extends Application{
         Scene scene = new Scene(mainPane.getRootLayout());
         primaryStage.setScene(scene);
         primaryStage.show();
-        
+
         mainPane.afterShow();
         player1.afterShow();
         player2.afterShow();
+        
+        Log.log("10");
     }
     
     /**

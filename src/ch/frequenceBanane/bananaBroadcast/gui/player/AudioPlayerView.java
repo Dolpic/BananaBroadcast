@@ -7,6 +7,7 @@ import java.io.IOException;
 import ch.frequenceBanane.bananaBroadcast.audio.*;
 import ch.frequenceBanane.bananaBroadcast.gui.GuiApp;
 import ch.frequenceBanane.bananaBroadcast.utils.AudioUtils;
+import ch.frequenceBanane.bananaBroadcast.utils.Log;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -105,7 +106,6 @@ public class AudioPlayerView {
 		
 		if(width == 0 || height == 0)
 			return;
-		
 		ByteArrayOutputStream outputStream = AudioUtils.getWaveform(width*WAVEFORM_SCALE_FACTOR, height*WAVEFORM_SCALE_FACTOR, audioPlayer.getCurrentAudioFile());
 		if(outputStream != null) {
 			ByteArrayInputStream stream   = new ByteArrayInputStream(outputStream.toByteArray());

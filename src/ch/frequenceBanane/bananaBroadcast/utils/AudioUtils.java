@@ -23,7 +23,7 @@ import javazoom.jl.decoder.*;
 
 public class AudioUtils {
 	private AudioUtils(){};
-	
+
 	final static int   WAVEFORM_COLOR            = new Color(255, 187, 0).getRGB();
 	final static Color WAVEFORM_BACKGROUND_COLOR = new Color(0, 0, 0);
 	
@@ -40,51 +40,48 @@ public class AudioUtils {
 	 * @return a ByteArrayOutputStream describing the output image in PNG format, or null if an error occurs
 	 * @throws IllegalArgumentException if the given given sizes are 0 or negative, or the AudioFile is invalid
 	 */
-	public static ByteArrayOutputStream getWaveform(final int imageWidth, final int imageHeight, final AudioFile audioFile){		
+	public static ByteArrayOutputStream getWaveform(final int imageWidth, final int imageHeight, final AudioFile audioFile){	
 		if(imageWidth <= 0 || imageHeight <= 0) 
 			throw new IllegalArgumentException("Given width or height is zero or negative");
 		if(audioFile == null || audioFile.path == "")
 			throw new IllegalArgumentException("Given AudioFile is null or has no path");
 		
-		AudioFormat      format      = AudioUtils.getDefaultAudioFormat();
-		AudioInputStream inputStream = AudioUtils.getAudioFileStream(format, audioFile.path);
-		if(inputStream == null) {
-			Log.error("Unable to open file : "+audioFile.path);
+		PersonalAudioFormat f = PersonalAudioFormat.getDefaultAudioFormat();
+		AudioInputStream inputStream;
+		try {
+			inputStream = AudioUtils.getAudioFileStream(f, audioFile.path);
+		} catch (Exception e1) {
+			Log.error("Unable to open file : "+audioFile.path+" | Reason : "+e1.getMessage());
 			return null;
 		}
 		
-		//TODO embed those values in a dedicated class, to simplify
-		int sampleSizeInBytes = format.getSampleSizeInBits()/8;
-		int byteArrayLength   = format.getChannels()*sampleSizeInBytes;
-		byte[] dataByte       = new byte[byteArrayLength];
+		byte[] dataByte = new byte[f.getFrameSize()];
 		
 		int framesToSkip  = (int)Math.floor(inputStream.getFrameLength()/imageWidth/2)*2;
-		double ratioY = imageHeight/Math.pow(2, format.getSampleSizeInBits());
+		double ratioY = imageHeight/Math.pow(2, f.getSampleSizeInBits());
 		
-		//Set image background
-		BufferedImage output = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
-		Graphics2D graphics = output.createGraphics();
-		graphics.setColor(WAVEFORM_BACKGROUND_COLOR);
-		graphics.fillRect(0, 0, output.getWidth(), output.getHeight());
+		BufferedImage output = createImageWithBackground(imageWidth, imageHeight, WAVEFORM_BACKGROUND_COLOR);
+		
 		for(int i=0; i<imageWidth && dataByte.length != 0; i++) {
 			try {
-				dataByte = inputStream.readNBytes(byteArrayLength);
-				inputStream.skip(format.getChannels()*framesToSkip*sampleSizeInBytes);
+				inputStream.read(dataByte, 0, f.getFrameSize());
+				inputStream.skip(f.getFrameSize()*framesToSkip);
 			} catch (IOException e) {
-				Log.error("Unable to read "+byteArrayLength+" bytes from the file "+audioFile.path);
+				Log.error("Unable to read "+f.getFrameSize()+" bytes from the file "+audioFile.path);
 				return null;
 			}
+
 			int dataRight = 0;
 			int dataLeft  = 0;
 
 			if(dataByte.length != 0) {
-				for(int j=0; j<sampleSizeInBytes; j++) {
+				for(int j=0; j<f.getSampleSize(); j++) {
 					dataLeft += dataByte[j]<<(8*j);
-					if(format.getChannels() == 2) {
-						dataRight += dataByte[j+ sampleSizeInBytes ]<<(8*j);
+					if(f.getChannels() == 2) {
+						dataRight += dataByte[j+ f.getSampleSize()]<<(8*j);
 					}
 				}
-
+				
 				for(int j=0; j<=Math.abs(dataLeft*ratioY); j++)
 					output.setRGB(i, imageHeight/2-j, WAVEFORM_COLOR);
 				
@@ -92,6 +89,7 @@ public class AudioUtils {
 					output.setRGB(i, imageHeight/2+j -1, WAVEFORM_COLOR);
 			}
 		}
+
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
 			ImageIO.write(output, "png", outputStream);
@@ -106,9 +104,10 @@ public class AudioUtils {
 	 * Return an audio data stream from a specified file in the specified format
 	 * @param targetFormat The format in which the result is formatted
 	 * @param path The path to the audio file
-	 * @return The audio stream describing the file in the given format, or null if an error occurs
+	 * @return The audio stream describing the file in the given format
+	 * @throws Exception If an error occurs 
 	 */
-	public static AudioInputStream getAudioFileStream(final AudioFormat targetFormat, final String path) {
+	public static AudioInputStream getAudioFileStream(final AudioFormat targetFormat, final String path) throws Exception {
 		if(targetFormat == null || path == null)
 			throw new IllegalArgumentException("One parameter is null");
 		
@@ -116,24 +115,18 @@ public class AudioUtils {
 		File audioFile = new File(path);
 		long inputStreamSize = 0;
 		
-		if(getExtension(path) == AudioFileExtension.MP3) {
-			
-			Bitstream bitStream;
-			
-			try {
+		switch(getExtension(path)) {
+			case MP3:
+				Bitstream bitStream;
+
 				bitStream = new Bitstream(new FileInputStream(audioFile));
-			} catch (FileNotFoundException e1) {
-				Log.error("File '"+path+"' not found");
-				return null;
-			}
-			
-			Decoder decoder = new Decoder();
-			Header frameHeader;
-			ByteArrayOutputStream output = new ByteArrayOutputStream();
-			
-        	byte[] bytes = new byte[2];
-        	
-        	try {
+				
+				Decoder decoder = new Decoder();
+				Header frameHeader;
+				ByteArrayOutputStream output = new ByteArrayOutputStream();
+				
+	        	byte[] bytes = new byte[2];
+	        	
 				frameHeader = bitStream.readFrame();
 				while (frameHeader != null) {
 
@@ -147,27 +140,20 @@ public class AudioUtils {
 		            bitStream.closeFrame();
 					frameHeader = bitStream.readFrame();
 				}
-			} catch (Exception e) {
-				Log.error("Error during file decoding");
-				return null;
-			}
-        	
-        	inputStreamSize /= targetFormat.getFrameSize();
-        	rawInputStream = new ByteArrayInputStream(output.toByteArray());
-			
-		}else if(getExtension(path) == AudioFileExtension.WAV) {
-			AudioInputStream tmpStream;
-			try {
+	        	
+	        	inputStreamSize /= targetFormat.getFrameSize();
+	        	rawInputStream = new ByteArrayInputStream(output.toByteArray());
+				break;
+				
+			case WAV:
+				AudioInputStream tmpStream;
 				tmpStream = AudioSystem.getAudioInputStream(audioFile);
-			} catch (Exception e) {
-				Log.error("Error during file decoding");
-				return null;
-			}
-			inputStreamSize = tmpStream.getFrameLength();
-			rawInputStream = tmpStream;
-		}else {
-			Log.error("Unsupported file format");
-			return null;
+				inputStreamSize = tmpStream.getFrameLength();
+				rawInputStream = tmpStream;
+				break;
+				
+			default:
+				throw new IllegalArgumentException("Invalide file format");
 		}
 		
 		return AudioSystem.getAudioInputStream(targetFormat, new AudioInputStream(rawInputStream, targetFormat, inputStreamSize)); 
@@ -241,13 +227,33 @@ public class AudioUtils {
 			return value;
 		}
 	}
-
-	private static AudioFormat getDefaultAudioFormat() {
-		final int sampleSize      = 16;
-		final int nbChannel       = 2;
-		final boolean signed      = true;
-		final boolean bigEndian   = false;
-		final float sampleRate    = (float) 44.1;
-		return new AudioFormat(sampleRate, sampleSize, nbChannel, signed, bigEndian);
+	
+	private static BufferedImage createImageWithBackground(final int width, final int height, Color backgroundColor) {
+		BufferedImage output = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		Graphics2D graphics = output.createGraphics();
+		graphics.setColor(backgroundColor);
+		graphics.fillRect(0, 0, output.getWidth(), output.getHeight());
+		return output;
+	}
+	
+	public static class PersonalAudioFormat extends AudioFormat{
+		private PersonalAudioFormat(final float sampleRate, final int sampleSize, 
+				          final int nbChannel, final boolean signed, final boolean bigEndian){
+			super(sampleRate, sampleSize, nbChannel, signed, bigEndian);
+			
+		}
+		
+		public int getSampleSize() {
+			return getSampleSizeInBits()/8;
+		}
+		
+		public static PersonalAudioFormat getDefaultAudioFormat() {
+			final int sampleSize    = 16;
+			final int nbChannel     = 2;
+			final boolean signed    = true;
+			final boolean bigEndian = false;
+			final float sampleRate  = (float) 44.1;
+			return new PersonalAudioFormat(sampleRate, sampleSize, nbChannel, signed, bigEndian);
+		}
 	}
 }

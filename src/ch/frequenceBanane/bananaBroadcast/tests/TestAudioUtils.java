@@ -38,8 +38,8 @@ public class TestAudioUtils {
 		assertThrows(IllegalArgumentException.class, ()->AudioUtils.getAudioFileStream(null, validAudioFile.path));
 		assertThrows(IllegalArgumentException.class, ()->AudioUtils.getAudioFileStream(getDefaultAudioFormat(), null));
 		
-		assertEquals(null, AudioUtils.getAudioFileStream(getDefaultAudioFormat(), invalidAudioFile.path));
-		assertEquals(null, AudioUtils.getAudioFileStream(getDefaultAudioFormat(), wrongFormatFile));
+		assertThrows(Exception.class, ()->AudioUtils.getAudioFileStream(getDefaultAudioFormat(), invalidAudioFile.path));
+		assertThrows(Exception.class, ()->AudioUtils.getAudioFileStream(getDefaultAudioFormat(), wrongFormatFile));
 	}
 	
 	@Test

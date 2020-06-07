@@ -21,7 +21,7 @@ public class AudioPlayer{
 	private Clip currentClip;
 	private LineListener loopListener;
 	private AudioFile audioFile;
-	
+
 	private boolean isPlaying   = false;
 	private boolean isRepeating = false;
 	
@@ -44,7 +44,14 @@ public class AudioPlayer{
 		if(file.path.equals(""))
 			throw new IllegalArgumentException("Music path is null");
 
-		AudioInputStream inputStream = AudioUtils.getAudioFileStream(currentClip.getFormat(), file.path);
+		AudioInputStream inputStream;
+		try {
+			inputStream = AudioUtils.getAudioFileStream(currentClip.getFormat(), file.path);
+		} catch (Exception e1) {
+			Log.error("Exception during audio file decoding : "+e1.getMessage());
+			return false;
+		}
+		
 		try {
 			close();
 			currentClip.open(inputStream);
