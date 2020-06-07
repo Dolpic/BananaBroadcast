@@ -102,8 +102,6 @@ public class GuiApp extends Application{
         mainPane.afterShow();
         player1.afterShow();
         player2.afterShow();
-        
-        Log.log("10");
     }
     
     /**

@@ -122,26 +122,25 @@ public class AudioUtils {
 		
 		switch(getExtension(path)) {
 			case MP3:
-				Bitstream bitStream;
-
-				bitStream = new Bitstream(new FileInputStream(audioFile));
-				
-				Decoder decoder = new Decoder();
-				Header frameHeader;
+				Bitstream bitStream = new Bitstream(new FileInputStream(audioFile));
+				Decoder decoder     = new Decoder();
 				ByteArrayOutputStream output = new ByteArrayOutputStream();
+				Header frameHeader;
 				
 	        	byte[] bytes = new byte[2];
 	        	
-				frameHeader = bitStream.readFrame();
-				while (frameHeader != null) {
-
+	        	frameHeader = bitStream.readFrame();
+	        	while (frameHeader != null){
+	        		
 					short[] next = ((SampleBuffer)decoder.decodeFrame(frameHeader, bitStream)).getBuffer();
+		            inputStreamSize += next.length*2;
+		            
 		            for(int i=0; i<next.length; i++) {
 		            	bytes[0] = (byte) next[i];
 		            	bytes[1] = (byte) (next[i] >> 8);
 		            	output.write(bytes);
 		            }
-		            inputStreamSize += next.length*2;
+		            
 		            bitStream.closeFrame();
 					frameHeader = bitStream.readFrame();
 				}
@@ -151,8 +150,7 @@ public class AudioUtils {
 				break;
 				
 			case WAV:
-				AudioInputStream tmpStream;
-				tmpStream = AudioSystem.getAudioInputStream(audioFile);
+				AudioInputStream tmpStream = AudioSystem.getAudioInputStream(audioFile);
 				inputStreamSize = tmpStream.getFrameLength();
 				rawInputStream = tmpStream;
 				break;
