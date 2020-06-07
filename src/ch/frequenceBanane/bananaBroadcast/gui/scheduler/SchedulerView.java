@@ -136,7 +136,7 @@ public class SchedulerView {
 		    	for(int day=0; day<7; day++) {
 					for(int hour=0; hour<24; hour++) {
 						gridPane[day][hour].setStyle("-fx-background-color:none");
-						
+			
 						if(gridPane[day][hour] == pane) {
 							if(isDefaultPlanning)
 								currentCategoriesSelection = scheduler.getDefaultPlanningOf(day, hour);

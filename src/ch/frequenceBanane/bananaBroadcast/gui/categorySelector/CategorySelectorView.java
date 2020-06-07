@@ -41,7 +41,7 @@ public class CategorySelectorView {
 			selector.cartouchesCategories,
 			selector.tapisCategories
 		));
-		
+	
 		for(int curIndex=0; curIndex<categories.size(); curIndex++) {
 			ArrayList<String> currentCategories = categories.get(curIndex);
 			
@@ -50,24 +50,28 @@ public class CategorySelectorView {
 			
 			for(int i=0; i<nbRows; i++) {
 				for(int j=0; j<NB_COLUMN_PER_TYPE && j+i*nbRows < nbElements; j++) {
-					Label label = new Label(currentCategories.get((int)(j+i*nbRows)));
 					
-					label.setOnMouseClicked(event -> {
-						String curCategory = label.textProperty().getValue();
-						if(selector.isSelectedCategory(curCategory)) {
-							selector.removeSelectedCategory(curCategory);
-							label.setTextFill(Color.BLACK);
-						}else {
-							selector.addSelectedCategory(curCategory);
-							label.setTextFill(Color.RED);
-						}
-					});
-					
+					Label label = createCategoryLabel(currentCategories.get((int)(j+i*nbRows)));					
 					categorySelector.add(label, j+curIndex*NB_COLUMN_PER_TYPE, i);
 					GridPane.setHalignment(label, HPos.CENTER);
 				}
 			}
 		}
+	}
+	
+	private Label createCategoryLabel(String labelText) {
+		Label label = new Label(labelText);
+		label.setOnMouseClicked(event -> {
+			String curCategory = label.textProperty().getValue();
+			if(selector.isSelectedCategory(curCategory)) {
+				selector.removeSelectedCategory(curCategory);
+				label.setTextFill(Color.BLACK);
+			}else {
+				selector.addSelectedCategory(curCategory);
+				label.setTextFill(Color.RED);
+			}
+		});
+		return label;
 	}
 	
 	/** @return The base layout of the object */

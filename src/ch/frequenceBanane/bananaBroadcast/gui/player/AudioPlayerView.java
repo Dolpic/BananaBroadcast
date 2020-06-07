@@ -7,10 +7,7 @@ import java.io.IOException;
 import ch.frequenceBanane.bananaBroadcast.audio.*;
 import ch.frequenceBanane.bananaBroadcast.gui.GuiApp;
 import ch.frequenceBanane.bananaBroadcast.utils.AudioUtils;
-import ch.frequenceBanane.bananaBroadcast.utils.Log;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -184,35 +181,31 @@ public class AudioPlayerView {
 	}
 	
 	protected void setEvents() {
-		button_previous.setOnAction(new EventHandler<ActionEvent>() {
-		    public void handle(ActionEvent e) {
-		    	audioPlayer.goToStart();
-		}});
-		button_play.setOnAction(new EventHandler<ActionEvent>() {
-		    public void handle(ActionEvent e) {
-		    	if(audioPlayer.isPlaying()) {
-		    		audioPlayer.pause();
-		    		setPauseState();
-		    	}else {
-		    		audioPlayer.play();
-		    		startTimer();
-		    		setPlayState();
-		    	}
-		}});
-		button_repeat.setOnAction(new EventHandler<ActionEvent>() {
-		    public void handle(ActionEvent e) { 
-		    	if(audioPlayer.isRepeating()) {
-		    		audioPlayer.setRepeat(false);
-		    		setRepeatedDisabledState();
-		    	}else {
-		    		audioPlayer.setRepeat(true);
-		    		setRepeatedActivatedState();
-		    	}
-		}});
-		button_next.setOnAction(new EventHandler<ActionEvent>() {
-		    public void handle(ActionEvent e) {
-		    	audioPlayer.goToEnd();
-		}});
+		
+		GuiApp.setOnActionButton(button_previous, (event) -> audioPlayer.goToStart());
+		
+		GuiApp.setOnActionButton(button_next, (event) -> audioPlayer.goToEnd());
+		
+		GuiApp.setOnActionButton(button_play, (event) -> {
+			if(audioPlayer.isPlaying()) {
+	    		audioPlayer.pause();
+	    		setPauseState();
+	    	}else {
+	    		audioPlayer.play();
+	    		startTimer();
+	    		setPlayState();
+	    	}
+		});
+		
+		GuiApp.setOnActionButton(button_repeat, (event) -> {
+			if(audioPlayer.isRepeating()) {
+	    		audioPlayer.setRepeat(false);
+	    		setRepeatedDisabledState();
+	    	}else {
+	    		audioPlayer.setRepeat(true);
+	    		setRepeatedActivatedState();
+	    	}
+		});
 	}
 	
 	private void setOnLoadEvent() {

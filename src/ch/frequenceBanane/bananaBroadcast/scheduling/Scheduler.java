@@ -138,34 +138,34 @@ public class Scheduler {
 	 */
 	public void fillScheduler(int hoursToFill) {
 		LocalDateTime date = LocalDateTime.now();
-		
-		while(hoursToFill > 0) {
-			LocalDate curDate = date.toLocalDate();
-			int curHours = date.getHour();
-			try {
-				if(database.getScheduledAt(curDate, curHours).isEmpty()) {
-					ArrayList<String> planning = getPlanningOf(curDate, curHours);
-					
-					if(planning.isEmpty()) {
-						planning = getDefaultPlanningOf(curDate.getDayOfWeek().getValue()-1, curHours);
-					}
-					
-					database.getRandomMusicFromCategorie(planning, DEFAULT_NUMBER_OF_MUSIC_PER_HOUR).forEach(
-					    music -> {
-							try {
-								database.addScheduledAt(music, curDate, curHours);
-							} catch (SQLException e) {
-								Log.error("Database error : Unable to add a music to the scheduler : "+e.getMessage());
-							}
+	
+		try {
+			while(hoursToFill > 0) {
+				final LocalDate curDate = date.toLocalDate();
+				final int curHours      = date.getHour();
+				ArrayList<String> planning = getPlanningOf(curDate, curHours);
+				
+					if(database.getScheduledAt(curDate, curHours).isEmpty()) {
+						
+						if(planning.isEmpty()) {
+							planning = getDefaultPlanningOf(curDate.getDayOfWeek().getValue()-1, curHours);
 						}
-					);
-				}
-			} catch (SQLException e) {
-				Log.error("Database error : Unable to fill the scheduler : "+e.getMessage());
+						
+						database.getRandomMusicFromCategorie(planning, DEFAULT_NUMBER_OF_MUSIC_PER_HOUR).forEach(
+						    music -> {
+								try {
+									database.addScheduledAt(music, curDate, curHours);
+								} catch (SQLException e) {
+									Log.error("Database error : Unable to add a music to the scheduler : "+e.getMessage());
+								}
+							}
+						);
+					}
+				date = date.plusHours(1);
+				hoursToFill--;
 			}
-			
-			date = date.plusHours(1);
-			hoursToFill--;
+		} catch (SQLException e) {
+			Log.error("Database error : Unable to fill the scheduler : "+e.getMessage());
 		}
 	}
 	

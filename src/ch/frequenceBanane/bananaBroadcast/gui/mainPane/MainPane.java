@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
 import ch.frequenceBanane.bananaBroadcast.BananaBroadcast;
 import ch.frequenceBanane.bananaBroadcast.database.Music;
 import ch.frequenceBanane.bananaBroadcast.database.MusicDatabase;
@@ -16,7 +17,6 @@ import ch.frequenceBanane.bananaBroadcast.utils.AudioUtils;
 import ch.frequenceBanane.bananaBroadcast.utils.CartouchesArray;
 import ch.frequenceBanane.bananaBroadcast.utils.Log;
 import javafx.application.Platform;
-import javafx.event.*;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
@@ -138,53 +138,34 @@ public class MainPane{
 	}
 	
 	private void loadEvents() {
-		buttonQuit.setOnAction(new EventHandler<ActionEvent>() {
-		    @Override public void handle(ActionEvent e) {
-		        Platform.exit();
-		        System.exit(0);
-		    }
+
+		GuiApp.setOnActionButton(buttonQuit, (event) -> { Platform.exit();System.exit(0);});
+		
+		GuiApp.setOnActionButton(schedulerButton, (event) -> {  
+			try {
+				new SchedulerView(scheduler);
+			} catch (IOException e) {
+				Log.error("Unable to create the Scheduler : "+e.getMessage());
+			}
 		});
 		
-		schedulerButton.setOnAction(new EventHandler<ActionEvent>() {
-		    @Override public void handle(ActionEvent e) {
-	            try {
-					new SchedulerView(scheduler);
-				} catch (IOException e1) {
-					Log.error("Unable to create the Scheduler : "+e1.getMessage());
-				}
-		    }
-		});
-		
-		addMusicButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(final ActionEvent e) {
-            	FileChooser fileChooser = new FileChooser();
-                List<File> list = fileChooser.showOpenMultipleDialog(primaryStage);
-                if (list != null) {
-                    for (File file : list) {
-                        Music music = AudioUtils.getAudioMetadata(file.getAbsolutePath());
-                        try {
-							database.addNewMusic(music);
-						} catch (SQLException e1) {
-							Log.error("Can't add the music : "+music.title+" - Reason : "+e1.getMessage());
-						}
-                    }
+		GuiApp.setOnActionButton(addMusicButton, (event) -> {
+			FileChooser fileChooser = new FileChooser();
+            List<File> list = fileChooser.showOpenMultipleDialog(primaryStage);
+            if (list != null) {
+                for (File file : list) {
+                    Music music = AudioUtils.getAudioMetadata(file.getAbsolutePath());
+                    try {
+						database.addNewMusic(music);
+					} catch (SQLException e) {
+						Log.error("Can't add the music : "+music.title+" - Reason : "+e.getMessage());
+					}
                 }
             }
-        });
+		});
 		
-		manualButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(final ActionEvent e) {
-            	app.setManual(manualButton.isSelected());
-            }
-        });
+		GuiApp.setOnActionButton(manualButton, (event) -> app.setManual(manualButton.isSelected()));
 		
-		refreshPlaylistButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(final ActionEvent e) {
-            	app.loadMusics();
-            }
-        });
+		GuiApp.setOnActionButton(refreshPlaylistButton, (event) -> app.loadMusics());
 	}
 }

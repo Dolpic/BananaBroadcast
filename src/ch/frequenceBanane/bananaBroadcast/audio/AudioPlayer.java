@@ -37,14 +37,14 @@ public class AudioPlayer{
 	 * @throws IllegalArgumentException if the music is null, or its path is empty
 	 */
 	public boolean load(final AudioFile file){
-		audioFile = file;
-		
 		if(file == null)
 			throw new IllegalArgumentException("Music parameter is null");
 		if(file.path.equals(""))
 			throw new IllegalArgumentException("Music path is null");
-
+		
+		audioFile = file;
 		AudioInputStream inputStream;
+		//TODO Would it be better to throw exceptions ? 
 		try {
 			inputStream = AudioUtils.getAudioFileStream(currentClip.getFormat(), file.path);
 		} catch (Exception e1) {

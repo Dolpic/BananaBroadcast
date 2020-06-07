@@ -17,8 +17,12 @@ import ch.frequenceBanane.bananaBroadcast.gui.playlist.AudioFileListView;
 import ch.frequenceBanane.bananaBroadcast.utils.Log;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.ButtonBase;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
@@ -68,6 +72,14 @@ public class GuiApp extends Application{
         
         categorySelector = new CategorySelectorView(app.categorySelector);
         
+        initialize();
+        
+        Scene scene = new Scene(mainPane.getRootLayout());
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+    
+    private void initialize() {
         app.categorySelector.setOnSelectedCategoriesChange((selected) -> {
         	ArrayList<AudioFile> newList = null;
 			try {
@@ -79,6 +91,7 @@ public class GuiApp extends Application{
 				Log.error("Unable to update the categorie lists : "+e.getMessage());
 			}
         });
+        
         mainPane.addTopLeftNode(player1.getRootLayout());
         mainPane.addTopRightNode(player2.getRootLayout());
         mainPane.addMainPlayerPane(mainPlayer.getRootLayout());
@@ -95,14 +108,38 @@ public class GuiApp extends Application{
         
         playlist.setSortable(false);
 
-        Scene scene = new Scene(mainPane.getRootLayout());
-        primaryStage.setScene(scene);
-        primaryStage.show();
-
         mainPane.afterShow();
         player1.afterShow();
         player2.afterShow();
     }
+    
+    /**
+     * Set a Consumer to be triggered then a button is clicked
+     * @param button The button on which the action must be bind
+     * @param consumer The consumer to run when the button is clicked
+     */
+    public static void setOnActionButton(ButtonBase button, Consumer<ActionEvent> consumer) {
+    	button.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(final ActionEvent e) {
+            	consumer.accept(e);
+            }
+    	});
+    }
+    
+    /**
+     * Set a Consumer to be triggered then a MenuItme is clicked
+     * @param button The MenuItem on which the action must be bind
+     * @param consumer The consumer to run when the MenuItem is clicked
+     */
+    public static void setOnActionButton(MenuItem button, Consumer<ActionEvent> consumer) {
+    	button.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(final ActionEvent e) {
+            	consumer.accept(e);
+            }
+    	});
+    }     
     
     /**
      * Utility function to load a JavaFX layout file (.fxml)
