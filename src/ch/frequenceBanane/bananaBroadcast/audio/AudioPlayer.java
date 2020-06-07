@@ -1,6 +1,7 @@
 package ch.frequenceBanane.bananaBroadcast.audio;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.function.Function;
 
 import javax.sound.sampled.*;
@@ -19,15 +20,25 @@ import ch.frequenceBanane.bananaBroadcast.utils.MixersUtilities;
 public class AudioPlayer{
 	
 	private Clip currentClip;
-	private LineListener loopListener;
+	private int loopListenerID;
 	private AudioFile audioFile;
 
 	private boolean isPlaying   = false;
 	private boolean isRepeating = false;
 	
+	private ArrayList<Runnable> onPlayRunnables   = new ArrayList<Runnable>();
+	private ArrayList<Runnable> onFinishRunnables = new ArrayList<Runnable>();
+	private ArrayList<Runnable> onEndRunnables    = new ArrayList<Runnable>();
+	private ArrayList<Runnable> onLoadRunnables   = new ArrayList<Runnable>();
+	
 	/** Create a new AudioPlayer with the first peripheral of the system selected*/
 	public AudioPlayer(){
 		selectMixer(0);
+		
+		createListenerOnCondition(onFinishRunnables, (event)-> {return event.getType() == LineEvent.Type.STOP && getRemainingTime() <= 0.0 && !isRepeating;});
+		createListenerOnCondition(onEndRunnables,    (event)-> {return event.getType() == LineEvent.Type.STOP && getRemainingTime() <= 0.0;});
+		createListenerOnCondition(onLoadRunnables,   (event)-> {return event.getType() == LineEvent.Type.OPEN;});
+		createListenerOnCondition(onPlayRunnables,   (event)-> {return event.getType() == LineEvent.Type.START;});
 	}
 	
 	/**
@@ -90,7 +101,7 @@ public class AudioPlayer{
 	/** Put the cursor at the end of the audio file and stop it*/
 	public void goToEnd() {
 		currentClip.stop();
-		setPosition(currentClip.getMicrosecondLength());
+		setPosition(currentClip.getMicrosecondLength()-1000);
 		isPlaying = false;
 	}
 	
@@ -122,9 +133,9 @@ public class AudioPlayer{
 	public void setRepeat(final boolean isRepeating) {
 		this.isRepeating = isRepeating;
 		if(isRepeating) {
-			loopListener = addOnEndEvent( () ->goToStart() );
+			loopListenerID = addOnEndEvent( () ->goToStart() );
 		}else {
-			removeOnEndEvent(loopListener);
+			removeOnEndEvent(loopListenerID);
 		}
 	}
 	
@@ -174,10 +185,10 @@ public class AudioPlayer{
 	 * @param runnable The runnable to run when the event is triggered
 	 * @throws IllegalArgumentException if the given runnable is null
 	 */
-	public LineListener addOnFinishEvent(final Runnable runnable) {
-		return createListenerOnCondition(runnable, 
-			(event)-> {return event.getType() == LineEvent.Type.STOP && getRemainingTime() == 0.0 && !isRepeating;}
-		);
+	public int addOnFinishEvent(final Runnable runnable) {
+		if(runnable == null) throw new IllegalArgumentException("Given paramter is null");
+		onFinishRunnables.add(runnable);
+		return onFinishRunnables.indexOf(runnable);
 	}
 	
 	/**
@@ -185,18 +196,18 @@ public class AudioPlayer{
 	 * @param runnable The runnable to run when the event is triggered
 	 * @throws IllegalArgumentException if the given runnable is null
 	 */
-	public LineListener addOnEndEvent(final Runnable runnable) {
-		return createListenerOnCondition(runnable, 
-			(event)-> {return event.getType() == LineEvent.Type.STOP && getRemainingTime() == 0.0;}
-		);
+	public int addOnEndEvent(final Runnable runnable) {
+		if(runnable == null) throw new IllegalArgumentException("Given paramter is null");
+		onEndRunnables.add(runnable);
+		return onEndRunnables.indexOf(runnable);
 	}
 	
 	/**
 	 * Disable a listener returned by the function addOnEndEvent
 	 * @param The listener to disable
 	 */
-	public void removeOnEndEvent(final LineListener listener) {
-		currentClip.removeLineListener(listener);
+	public void removeOnEndEvent(final int eventID) {
+		onEndRunnables.remove(eventID);
 	}
 	
 	/**
@@ -204,10 +215,10 @@ public class AudioPlayer{
 	 * @param runnable The runnable to run when the event is triggered
 	 * @throws IllegalArgumentException if the given runnable is null
 	 */
-	public LineListener addOnLoadEvent(final Runnable runnable) {
-		return createListenerOnCondition(runnable, 
-			(event)-> {return event.getType() == LineEvent.Type.OPEN;}
-		);
+	public int addOnLoadEvent(final Runnable runnable) {
+		if(runnable == null) throw new IllegalArgumentException("Given paramter is null");
+		onLoadRunnables.add(runnable);
+		return onLoadRunnables.indexOf(runnable);
 	}
 	
 	/**
@@ -215,20 +226,20 @@ public class AudioPlayer{
 	 * @param runnable The runnable to run when the event is triggered
 	 * @throws IllegalArgumentException if the given runnable is null
 	 */
-	public LineListener addOnPlayEvent(final Runnable runnable) {
-		return createListenerOnCondition(runnable, 
-			(event)-> {return event.getType() == LineEvent.Type.START;}
-		);
+	public int addOnPlayEvent(final Runnable runnable) {
+		if(runnable == null) throw new IllegalArgumentException("Given paramter is null");
+		onPlayRunnables.add(runnable);
+		return onPlayRunnables.indexOf(runnable);
 	}
 	
-	private LineListener createListenerOnCondition(final Runnable runnable, final Function<LineEvent, Boolean> condition) {
-		if(runnable == null)
-			throw new IllegalArgumentException("Given runnable is null");
-		
+	private LineListener createListenerOnCondition(final ArrayList<Runnable> runnables, final Function<LineEvent, Boolean> condition) {
 		LineListener listener = new LineListener() {
 	        public void update(LineEvent event) {
-	            if (condition.apply(event))
-	                runnable.run();
+	            if (condition.apply(event)) {
+	            	for(Runnable runnable : runnables) {
+	            		runnable.run();
+	            	}
+	            }
 	    }};
 		currentClip.addLineListener(listener);
 		return listener;

@@ -49,7 +49,7 @@ public class Playlist<AudioType extends AudioFile> {
 	 * @param audio The list of AudioFile to add
 	 * @throws IllegalArgumentException if audio is null
 	 */
-	public void addAtEnd(final List<AudioType> audio) {
+	public void addAtEnd(final List<? extends AudioType> audio) {
 		if(audio == null)
 			throw new IllegalArgumentException("Given parameter is empty");
 		else

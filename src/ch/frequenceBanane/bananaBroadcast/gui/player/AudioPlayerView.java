@@ -7,6 +7,7 @@ import java.io.IOException;
 import ch.frequenceBanane.bananaBroadcast.audio.*;
 import ch.frequenceBanane.bananaBroadcast.gui.GuiApp;
 import ch.frequenceBanane.bananaBroadcast.utils.AudioUtils;
+import ch.frequenceBanane.bananaBroadcast.utils.Log;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -166,9 +167,10 @@ public class AudioPlayerView {
 	
 	/** Update the timers shown in the player */
 	public void updateTimers() {
-		Platform.runLater( () ->
-			remaining.setText("- "+formatTime(audioPlayer.getRemainingTime()))
-		);
+		Platform.runLater( () -> {
+			remaining.setText("- "+formatTime(audioPlayer.getRemainingTime()));
+			elapsed.setText(formatTime(audioPlayer.getElapsedTime()));
+		});
 	}
 	
 	protected static String formatTime(double duration) {
@@ -182,9 +184,17 @@ public class AudioPlayerView {
 	
 	protected void setEvents() {
 		
-		GuiApp.setOnActionButton(button_previous, (event) -> audioPlayer.goToStart());
+		GuiApp.setOnActionButton(button_previous, (event) -> {
+			setPauseState();
+			audioPlayer.goToStart();
+			updateTimers();
+		});
 		
-		GuiApp.setOnActionButton(button_next, (event) -> audioPlayer.goToEnd());
+		GuiApp.setOnActionButton(button_next, (event) -> {
+			setPauseState();
+			audioPlayer.goToEnd();
+			updateTimers();
+		});
 		
 		GuiApp.setOnActionButton(button_play, (event) -> {
 			if(audioPlayer.isPlaying()) {

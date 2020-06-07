@@ -37,11 +37,6 @@ public class MusicPlayerView extends AudioPlayerView{
 		updateView();
 	}
 	
-	public void updateTimers() {
-		remaining.setText("- "+formatTime(audioPlayer.getRemainingTime()));
-		elapsed.setText(formatTime(audioPlayer.getElapsedTime()));
-	}
-	
 	private void setOnLoadEvent() {
 		audioPlayer.addOnLoadEvent( () -> { 
 			Platform.runLater( () -> updateView());

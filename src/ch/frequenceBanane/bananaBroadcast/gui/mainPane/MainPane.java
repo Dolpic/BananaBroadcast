@@ -75,7 +75,7 @@ public class MainPane{
 		this.app          = app;
         GuiApp.loadLayout(this, "mainPane/MainPane.fxml");
 	}
-	
+
 	@FXML
     public void initialize() throws IOException {
 		for(int i=0; i<jingles.size(); i++) {		

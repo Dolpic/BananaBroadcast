@@ -14,8 +14,8 @@ import java.io.*;
 */
 public class GPIOInterface extends Thread{
 	
-	private final int nbGPIO     = 16;
-	private final int pinPerGPIO = 5;
+	private final int NB_GPIO     = 16;
+	private final int PIN_PER_GPIO = 5;
 	
 	private boolean running = true;
 	
@@ -42,11 +42,11 @@ public class GPIOInterface extends Thread{
 
 		this.ip        = ip;
 		this.port      = port;
-		this.functions = new Runnable [nbGPIO][pinPerGPIO];
+		this.functions = new Runnable [NB_GPIO][PIN_PER_GPIO];
 		
 		// Populate the callable functions array with dummy functions
-		for(int i=0; i<nbGPIO; i++) {
-			for(int j=0; j<pinPerGPIO; j++) {
+		for(int i=0; i<NB_GPIO; i++) {
+			for(int j=0; j<PIN_PER_GPIO; j++) {
 				functions[i][j] = () -> {};
 			}
 		}
@@ -82,7 +82,7 @@ public class GPIOInterface extends Thread{
 		
 		if(header.equals("GPO")) {
 			
-			for(int pin=0; pin<pinPerGPIO; pin++) {
+			for(int pin=0; pin<PIN_PER_GPIO; pin++) {
 				// 'L' means a signal changed from high to low, meaning a key is released
 				if(pins.charAt(pin) == 'L')
 					triggerFunction(GPIO_Id, pin);
@@ -97,12 +97,12 @@ public class GPIOInterface extends Thread{
 	
 	/** @return The number of emulated GPIO handled */
 	public int getNbGPIO() {
-		return nbGPIO;
+		return NB_GPIO;
 	}
 	
 	/** @return The number of handled pin per GPIO */
 	public int getPinPerGPIO() {
-		return pinPerGPIO;
+		return PIN_PER_GPIO;
 	}
 	
 	/**
@@ -114,10 +114,7 @@ public class GPIOInterface extends Thread{
 	 * @throws IllegalArgumentException if GPIONumber or pinId is invalid, or func is null
 	 */
 	public void bindGPIOFunction(final int GPIONumber, final int pinID, Runnable func) {
-		if(GPIONumber < 1 || GPIONumber > nbGPIO)
-			throw new IllegalArgumentException("GPIO number is invalid : "+GPIONumber);
-		if(pinID < 0 || pinID >= pinPerGPIO)
-			throw new IllegalArgumentException("pinID number is invalid : "+GPIONumber);
+		checkValidGPIONumerAndPinId(GPIONumber, pinID);
 		if(func == null)
 			throw new IllegalArgumentException("given function is null");
 		
@@ -126,11 +123,14 @@ public class GPIOInterface extends Thread{
 	
 	
 	private void triggerFunction(final int GPIONumber, final int pinID) {
-		if(GPIONumber < 1 || GPIONumber > nbGPIO)
-			throw new IllegalArgumentException("GPIO number is invalid : "+GPIONumber);
-		if(pinID < 0 || pinID >= pinPerGPIO)
-			throw new IllegalArgumentException("pinID number is invalid : "+GPIONumber);
-		
+		checkValidGPIONumerAndPinId(GPIONumber, pinID);
 		functions[GPIONumber-1][pinID].run();
+	}
+	
+	private void checkValidGPIONumerAndPinId(final int GPIONumber, final int pinID) {
+		if(GPIONumber < 1 || GPIONumber > NB_GPIO)
+			throw new IllegalArgumentException("GPIO number is invalid : "+GPIONumber);
+		if(pinID < 0 || pinID >= PIN_PER_GPIO)
+			throw new IllegalArgumentException("pinID number is invalid : "+GPIONumber);
 	}
 }

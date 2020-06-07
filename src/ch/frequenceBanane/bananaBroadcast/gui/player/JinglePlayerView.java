@@ -35,6 +35,13 @@ public class JinglePlayerView extends AudioPlayerView{
 		setEvents();
 	}
 	
+	/** Update the timers shown in the player */
+	public void updateTimers() {
+		Platform.runLater( () ->
+			remaining.setText("- "+formatTime(audioPlayer.getRemainingTime()))
+		);
+	}
+	
 	protected void setEvents() {
 		button_play.setOnAction(new EventHandler<ActionEvent>() {
 		    public void handle(ActionEvent e) {

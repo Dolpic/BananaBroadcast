@@ -50,7 +50,7 @@ public class CategorySelectorView {
 			
 			for(int i=0; i<nbRows; i++) {
 				for(int j=0; j<NB_COLUMN_PER_TYPE && j+i*nbRows < nbElements; j++) {
-					
+				
 					Label label = createCategoryLabel(currentCategories.get((int)(j+i*nbRows)));					
 					categorySelector.add(label, j+curIndex*NB_COLUMN_PER_TYPE, i);
 					GridPane.setHalignment(label, HPos.CENTER);

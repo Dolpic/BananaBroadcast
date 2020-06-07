@@ -78,6 +78,8 @@ public class BananaBroadcast {
 		initializePlayer(player1, player2);
 		initializePlayer(player2, player1);
 		
+		databaseList.addAtEnd(database.getAllMusics());
+		
 		loadMusics();
 	}
 	

@@ -106,6 +106,29 @@ public class GuiApp extends Application{
         databaseList.setOnElementDoubleClick(loadAudioFileInPlayer);
         
         playlist.setSortable(false);
+        
+        app.player1.addOnPlayEvent(() -> {
+        	player1.setTitle();
+        	player1.updateTimers();
+        	player1.setPlayState();
+        });
+        
+        app.player1.addOnFinishEvent(() -> {
+        	player1.setPauseState();
+        });
+        
+        app.player2.addOnPlayEvent(() -> {
+        	player2.setTitle();
+        	player2.updateTimers();
+        	player2.setPlayState();
+        });
+        
+        app.player2.addOnFinishEvent(() -> {
+        	player2.setPauseState();
+        });
+        
+        System.out.println("ADDED");
+        
 
         mainPane.afterShow();
         player1.afterShow();
