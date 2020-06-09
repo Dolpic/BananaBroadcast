@@ -237,7 +237,7 @@ public class MusicDatabase {
 		return getQueryResultMusics(queryResults);
 	}
 	
-	//TODO : gérer les startTime / endTime et albumIndex qui est toujours à 0
+	//TODO : gÃ©rer les startTime / endTime et albumIndex qui est toujours Ã  0
 	public void addNewMusic(Music music) throws SQLException {
 		int nextID = getNextAutoIncrement("musics");
 		

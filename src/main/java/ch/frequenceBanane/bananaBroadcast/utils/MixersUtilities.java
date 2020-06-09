@@ -9,7 +9,7 @@ public class MixersUtilities {
 	private MixersUtilities(){};
 	
 	//TODO ces fonctions sont du copier-coller, peut mieux faire
-	//TODO vérifier si dans certains cas il peut y avoir des output qui ne supportent pas les classes "Clip"
+	//TODO vÃ©rifier si dans certains cas il peut y avoir des output qui ne supportent pas les classes "Clip"
 	
 	public static ArrayList<Mixer> getOutputMixers() {
 		ArrayList<Mixer> result = new ArrayList<Mixer>();
