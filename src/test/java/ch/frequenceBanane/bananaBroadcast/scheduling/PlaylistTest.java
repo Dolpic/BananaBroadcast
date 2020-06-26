@@ -20,22 +20,22 @@ public class PlaylistTest {
 	
 	@Test
 	public void GetWaveFormThrowsExpectedExceptions() throws IOException, SQLException {
-		MusicDatabase database = new MusicDatabase(databaseUrl, databaseUser, databasePassword);
-		CategorySelector catSel = new CategorySelector(database);
-		assertEquals(false, catSel.isSelectedCategory("test category"));
-		catSel.addSelectedCategory("test category");
-		assertEquals(true, catSel.isSelectedCategory("test category"));
-		catSel.removeSelectedCategory("test category");
-		assertEquals(false, catSel.isSelectedCategory("test category"));
+    MusicDatabase database = new MusicDatabase(databaseUrl, databaseUser, databasePassword);
+    CategorySelector catSel = new CategorySelector(database);
+    assertEquals(false, catSel.isSelectedCategory("test category"));
+    catSel.addSelectedCategory("test category");
+    assertEquals(true, catSel.isSelectedCategory("test category"));
+    catSel.removeSelectedCategory("test category");
+    assertEquals(false, catSel.isSelectedCategory("test category"));
 	}
 	
 	@Test
 	public void ExceptionsAreThrowsWhenNeeded() throws IOException, SQLException {
-		MusicDatabase database = new MusicDatabase(databaseUrl, databaseUser, databasePassword);
-		CategorySelector catSel = new CategorySelector(database);
-		assertThrows(IllegalArgumentException.class, ()->catSel.addSelectedCategory(null));
-		assertThrows(IllegalArgumentException.class, ()->catSel.removeSelectedCategory(null));
-		assertThrows(IllegalArgumentException.class, ()->catSel.isSelectedCategory(null));
-		assertThrows(IllegalArgumentException.class, ()->catSel.setOnSelectedCategoriesChange(null));
+    MusicDatabase database = new MusicDatabase(databaseUrl, databaseUser, databasePassword);
+    CategorySelector catSel = new CategorySelector(database);
+    assertThrows(IllegalArgumentException.class, ()->catSel.addSelectedCategory(null));
+    assertThrows(IllegalArgumentException.class, ()->catSel.removeSelectedCategory(null));
+    assertThrows(IllegalArgumentException.class, ()->catSel.isSelectedCategory(null));
+    assertThrows(IllegalArgumentException.class, ()->catSel.setOnSelectedCategoriesChange(null));
 	}
 }

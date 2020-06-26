@@ -11,15 +11,17 @@ import javafx.fxml.FXML;
 
 /**
  * Graphical view of a MusicPlayer
+ * 
  * @author Corentin
  * @author corentin.junod@epfl.ch
  */
-public class MusicPlayerView extends AudioPlayerView{
-	
+public class MusicPlayerView extends AudioPlayerView {
+
 	private MusicPlayer musicPlayer;
-	
+
 	/**
 	 * Instantiate a new MusicPlayerView
+	 * 
 	 * @param musicPlayer the music player controlled by the view
 	 * @throws IOException If an error occurs during the layout file reading
 	 */
@@ -29,28 +31,28 @@ public class MusicPlayerView extends AudioPlayerView{
 		setOnLoadEvent();
 		GuiApp.loadLayout(this, "MusicPlayer.fxml");
 	}
-	
+
 	@FXML
-	public void initialize() throws IOException { 
+	public void initialize() throws IOException {
 		super.initialize();
 		setOnLoadEvent();
 		updateView();
 	}
-	
+
 	private void setOnLoadEvent() {
-		audioPlayer.addOnLoadEvent( () -> { 
-			Platform.runLater( () -> updateView());
+		audioPlayer.addOnLoadEvent(() -> {
+			Platform.runLater(() -> updateView());
 		});
 	}
-	
+
 	private void updateView() {
-		Platform.runLater( () -> {
+		Platform.runLater(() -> {
 			Music curMusic = musicPlayer.getCurrentAudioFile();
-			if(curMusic != null) {
+			if (curMusic != null) {
 				artist.setText(curMusic.artist);
 				loadWaveform();
 				updateTimers();
-			}else {
+			} else {
 				Log.warning("Trying to update a view with no music loaded");
 			}
 		});

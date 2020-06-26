@@ -109,13 +109,6 @@
             <artifactId>javafx-swing</artifactId>
             <version>14</version>
         </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-web</artifactId>
-            <version>14</version>
-        </dependency>
-
-
 
         <dependency>
             <groupId>org</groupId>

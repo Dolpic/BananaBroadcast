@@ -16,25 +16,25 @@ public class CategorySelectorTest {
 	
 	@Test
 	public void NormalUtilisationHasExpectedResult(){
-		Playlist<Music> playlist = new Playlist<>();
-		Music music = new Music(0, "","","", null, null, 0, 0, 0, null);
-		assertEquals(0, playlist.getList().size());
-		playlist.addAtEnd(music);
-		assertEquals(1, playlist.getList().size());
-		ArrayList<Music> mlist = new ArrayList<Music>();
-		mlist.add(new Music(0, "","","", null, null, 0, 0, 0, null));
-		mlist.add(new Music(0, "","","", null, null, 0, 0, 0, null));
-		playlist.addAtEnd(mlist);
-		assertEquals(3, playlist.getList().size());
-		assertEquals(music, playlist.getNext());
-		assertEquals(2, playlist.getList().size());
-		playlist.removeAll();
-		assertEquals(0, playlist.getList().size());
+    Playlist<Music> playlist = new Playlist<>();
+    Music music = new Music(0, "","","", null, null, 0, 0, 0, null);
+    assertEquals(0, playlist.getList().size());
+    playlist.addAtEnd(music);
+    assertEquals(1, playlist.getList().size());
+    ArrayList<Music> mlist = new ArrayList<Music>();
+    mlist.add(new Music(0, "","","", null, null, 0, 0, 0, null));
+    mlist.add(new Music(0, "","","", null, null, 0, 0, 0, null));
+    playlist.addAtEnd(mlist);
+    assertEquals(3, playlist.getList().size());
+    assertEquals(music, playlist.getNext());
+    assertEquals(2, playlist.getList().size());
+    playlist.removeAll();
+    assertEquals(0, playlist.getList().size());
 	}
 	
 	@Test
 	public void ExceptionsAreThrownWhenNeeded() throws IOException, SQLException {
-		Playlist<Music> playlist = new Playlist<>();
-		assertThrows(IllegalArgumentException.class, ()->playlist.setOnChange(null));
+    Playlist<Music> playlist = new Playlist<>();
+    assertThrows(IllegalArgumentException.class, ()->playlist.setOnChange(null));
 	}
 }

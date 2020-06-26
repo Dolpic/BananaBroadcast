@@ -35,7 +35,7 @@
             </Menu>
         <Menu fx:id="buttonHelp" mnemonicParsing="false" text="Aide">
           <items>
-            <MenuItem mnemonicParsing="false" text="A Propos" />
+            <MenuItem fx:id="buttonAbout" mnemonicParsing="false" text="A Propos" />
           </items>
         </Menu>
       </menus>
