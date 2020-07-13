@@ -1,11 +1,11 @@
-package ch.frequenceBanane.bananaBroadcast.database;
+/*package ch.frequenceBanane.bananaBroadcast.database;
 
 /**
  * Class representing a music with its metadata and sound file path
  * 
  * @author Corentin
  * @author corentin.junod@epfl.ch
- */
+ 
 public class Music extends AudioFile {
 
 	public String artist;
@@ -25,24 +25,21 @@ public class Music extends AudioFile {
 	 * @param startTime
 	 * @param endTime
 	 * @param path
-	 */
+	 
 	public Music(final int id, final String title, final String artist, final String album, final String genre,
 			final String[] categories, final int duration, final int startTime, final int endTime, final String path) {
 		super(id, title, duration, startTime, endTime, path, categories);
-		this.artist = artist;
-		this.album = album;
-		this.genre = genre;
 	}
 
 	/**
 	 * Create a copy of the provided music
 	 * 
 	 * @param music The Music to copy into a new Music
-	 */
+	 
 	public Music(final Music music) {
 		super(music.id, music.title, music.duration, music.startTime, music.endTime, music.path, music.categories);
 		this.artist = music.artist;
 		this.album = music.album;
 		this.genre = music.genre;
 	}
-}
+}*/

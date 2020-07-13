@@ -225,8 +225,10 @@ public class AudioPlayerView {
 				setPauseState();
 			} else {
 				audioPlayer.play();
-				startTimer();
-				setPlayState();
+				if(audioPlayer.isPlaying()) {
+					startTimer();
+					setPlayState();
+				}
 			}
 		});
 

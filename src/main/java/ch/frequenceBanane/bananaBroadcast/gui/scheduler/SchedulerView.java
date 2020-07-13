@@ -12,6 +12,7 @@ import ch.frequenceBanane.bananaBroadcast.scheduling.Scheduler;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -81,11 +82,9 @@ public class SchedulerView {
 		this.scheduler = scheduler;
 		selectedWeekMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
-		FXMLLoader loader = new FXMLLoader(GuiApp.class.getResource("Scheduler.fxml"));
-		loader.setController(this);
 		Stage schedulerStage = new Stage();
 		schedulerStage.setTitle("Scheduler");
-		schedulerStage.setScene(new Scene(loader.load()));
+		schedulerStage.setScene(new Scene(GuiApp.loadLayout(this, "Scheduler.fxml")));
 
 		setButtonsEvents();
 		schedulerStage.show();

@@ -167,7 +167,7 @@ public class AudioUtils {
 	 * @return a Music object containing the metadata, or null if an error occurs
 	 * @throws IllegalArgumentException id the given path is null
 	 */
-	public static Music getAudioMetadata(final String path) {
+	public static AudioFile getAudioMetadata(final String path) {
 		if (path == null)
 			throw new IllegalArgumentException("path is null");
 
@@ -177,10 +177,18 @@ public class AudioUtils {
 			Tag tag = audioFile.getTag();
 
 			String[] categories = { getTextTagValue(FieldKey.GENRE, tag) };
+			
+			AudioFile result = new AudioFile();
 
-			return new Music(0, getTextTagValue(FieldKey.TITLE, tag), getTextTagValue(FieldKey.ARTIST, tag),
-					getTextTagValue(FieldKey.ALBUM, tag), getTextTagValue(FieldKey.GENRE, tag), categories,
-					audioFile.getAudioHeader().getTrackLength(), 0, 0, musicFile.getAbsolutePath());
+			result.title      = getTextTagValue(FieldKey.TITLE, tag);
+			result.artist     = getTextTagValue(FieldKey.ARTIST, tag);
+			result.album      = getTextTagValue(FieldKey.ALBUM, tag);
+			result.genre      = getTextTagValue(FieldKey.GENRE, tag);
+			result.categories = categories;
+			result.endTime    = audioFile.getAudioHeader().getTrackLength();
+			result.path       = musicFile.getAbsolutePath();
+			return result;
+			
 		} catch (Exception e) {
 			Log.error("Error during file handling");
 			return null;

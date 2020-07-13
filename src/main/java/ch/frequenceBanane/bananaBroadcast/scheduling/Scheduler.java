@@ -48,12 +48,12 @@ public class Scheduler {
 	 * @return A list of nbMusic next musics in the scheduler, or null if an error
 	 *         occurs
 	 */
-	public List<Music> getNextMusics(final int nbMusic) {
+	public List<AudioFile> getNextMusics(final int nbMusic) {
 		return getNextMusicsRecursive(nbMusic, true);
 	}
 
-	private List<Music> getNextMusicsRecursive(final int nbMusic, final boolean retry) {
-		List<Music> result;
+	private List<AudioFile> getNextMusicsRecursive(final int nbMusic, final boolean retry) {
+		List<AudioFile> result;
 		try {
 			result = database.getNextScheduled();
 		} catch (SQLException e) {

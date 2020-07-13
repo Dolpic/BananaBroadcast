@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.frequenceBanane.bananaBroadcast.BananaBroadcast;
-import ch.frequenceBanane.bananaBroadcast.database.Music;
+import ch.frequenceBanane.bananaBroadcast.database.AudioFile;
 import ch.frequenceBanane.bananaBroadcast.database.MusicDatabase;
 import ch.frequenceBanane.bananaBroadcast.gui.GuiApp;
-import ch.frequenceBanane.bananaBroadcast.gui.player.JinglePlayerView;
+import ch.frequenceBanane.bananaBroadcast.gui.player.AudioPlayerView;
 import ch.frequenceBanane.bananaBroadcast.gui.scheduler.SchedulerView;
 import ch.frequenceBanane.bananaBroadcast.scheduling.Scheduler;
 import ch.frequenceBanane.bananaBroadcast.utils.AudioUtils;
@@ -50,7 +50,9 @@ public class MainPane {
 	private MenuItem buttonQuit;
 	@FXML
 	private MenuItem buttonAbout;
-
+	@FXML
+	private MenuItem buttonOptions;
+	
 	@FXML
 	private GridPane tableJingles;
 
@@ -76,7 +78,7 @@ public class MainPane {
 	private final Scheduler scheduler;
 	private final MusicDatabase database;
 	private final BananaBroadcast app;
-	private final ArrayList<JinglePlayerView> jinglesPlayer = new ArrayList<JinglePlayerView>();
+	private final ArrayList<AudioPlayerView> jinglesPlayer = new ArrayList<AudioPlayerView>();
 
 	/**
 	 * Create a new main layout for the app
@@ -97,7 +99,7 @@ public class MainPane {
 	@FXML
 	public void initialize() throws IOException {
 		for (int i = 0; i < jingles.size(); i++) {
-			JinglePlayerView cur = new JinglePlayerView(jingles.get(i));
+			AudioPlayerView cur = new AudioPlayerView(jingles.get(i));
 			jinglesPlayer.add(cur);
 			tableJingles.add(cur.getRootLayout(), i % tableJingles.getColumnCount(), i / tableJingles.getColumnCount());
 		}
@@ -159,6 +161,8 @@ public class MainPane {
 		});
 
 		GuiApp.setOnActionButton(buttonAbout, (event) -> showAboutDialog());
+		
+		GuiApp.setOnActionButton(buttonOptions, (event) -> Log.informationDialog("Preferences are not implemented yet"));
 
 		GuiApp.setOnActionButton(schedulerButton, (event) -> {
 			try {
@@ -173,7 +177,7 @@ public class MainPane {
 			List<File> list = fileChooser.showOpenMultipleDialog(primaryStage);
 			if (list != null) {
 				for (File file : list) {
-					Music music = AudioUtils.getAudioMetadata(file.getAbsolutePath());
+					AudioFile music = AudioUtils.getAudioMetadata(file.getAbsolutePath());
 					try {
 						database.addNewMusic(music);
 					} catch (SQLException e) {

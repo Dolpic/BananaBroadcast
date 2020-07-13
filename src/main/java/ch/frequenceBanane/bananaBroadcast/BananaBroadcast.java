@@ -21,16 +21,16 @@ public class BananaBroadcast {
 
 	public static final int DEFAULT_PLAYLIST_SIZE = 20;
 
-	public final MusicPlayer player1;
-	public final MusicPlayer player2;
+	public final AudioPlayer player1;
+	public final AudioPlayer player2;
 	public final AudioPlayer mainPlayer;
 
 	public final GPIOInterface gpio;
 	public final Recorder recorder;
 	public final MusicDatabase database;
 
-	public final Playlist<Music> playlist;
-	public final Playlist<Music> playlistOld;
+	public final Playlist<AudioFile> playlist;
+	public final Playlist<AudioFile> playlistOld;
 	public final Playlist<AudioFile> databaseList;
 
 	public final Scheduler scheduler;
@@ -65,8 +65,8 @@ public class BananaBroadcast {
 		
 		try {
 			database = new MusicDatabase(databaseUrl, databaseUser, databasePassword);
-			player1 = new MusicPlayer();
-			player2 = new MusicPlayer();
+			player1 = new AudioPlayer();
+			player2 = new AudioPlayer();
 			mainPlayer = new AudioPlayer();
 			gpio = new GPIOInterface(ip, gpioPort);
 			recorder = new Recorder("records/");
@@ -97,11 +97,11 @@ public class BananaBroadcast {
 		loadMusics();
 	}
 
-	private void initializePlayer(MusicPlayer player, MusicPlayer nextPlayerToPlay) {
+	private void initializePlayer(AudioPlayer player, AudioPlayer nextPlayerToPlay) {
 		player.addOnFinishEvent(() -> {
 			player.close();
 			playlistOld.addAtEnd(player.getCurrentAudioFile());
-			player.loadMusic(playlist.getNext());
+			player.load(playlist.getNext());
 			if (!isInManual)
 				nextPlayerToPlay.play();
 		});
@@ -111,13 +111,13 @@ public class BananaBroadcast {
 	public void loadMusics() {
 		playlist.removeAll();
 		playlist.addAtEnd(scheduler.getNextMusics(DEFAULT_PLAYLIST_SIZE));
-		Music next = playlist.getNext();
+		AudioFile next = playlist.getNext();
 		if (next != null) {
-			player1.loadMusic(next);
+			player1.load(next);
 		}
 		next = playlist.getNext();
 		if (next != null) {
-			player2.loadMusic(next);
+			player2.load(next);
 		}
 	}
 

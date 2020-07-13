@@ -21,7 +21,7 @@ public class MusicDatabase {
 		MUSIC, JINGLE, TAPIS, CARTOUCHE
 	};
 
-	private Connection connection;
+	private static Connection connection;
 
 	/** Create a new connection with the database */
 	public MusicDatabase(final String url, final String user, final String password) throws SQLException {
@@ -34,24 +34,24 @@ public class MusicDatabase {
 	}
 
 	/** @return All musics in the database, null if an error occurs */
-	public ArrayList<Music> getAllMusics() throws SQLException {
+	public ArrayList<AudioFile> getAllMusics() throws SQLException {
 		String query = "SELECT * FROM musics WHERE 1";
 		ResultSet queryResults = connection.createStatement().executeQuery(query);
-		return getQueryResultMusics(queryResults);
+		return AudioFile.getFromQueryResult(queryResults);
 	}
 
 	/**
 	 * @return All scheduled musics for the current hour of the current day, null if
 	 *         an error occurs
 	 */
-	public ArrayList<Music> getNextScheduled() throws SQLException {
+	public ArrayList<AudioFile> getNextScheduled() throws SQLException {
 		String query = "SELECT * " + "FROM musics m, scheduler s "
 				+ "WHERE s.musicId = m.ID AND s.slot = HOUR(NOW()) AND s.day = CURRENT_DATE() ORDER BY playOrder";
 		ResultSet queryResults = connection.createStatement().executeQuery(query);
-		return getQueryResultMusics(queryResults);
+		return AudioFile.getFromQueryResult(queryResults);
 	}
 
-	public ArrayList<Music> getScheduledAt(final LocalDate date, final int hour) throws SQLException {
+	public ArrayList<AudioFile> getScheduledAt(final LocalDate date, final int hour) throws SQLException {
 		ResultSet queryResults = null;
 		DateTimeFormatter formater = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		String query = "SELECT * " + "FROM musics m, scheduler s "
@@ -62,10 +62,10 @@ public class MusicDatabase {
 		preparedStatement.setInt(1, hour);
 		preparedStatement.setString(2, formater.format(date));
 		queryResults = preparedStatement.executeQuery();
-		return getQueryResultMusics(queryResults);
+		return AudioFile.getFromQueryResult(queryResults);
 	}
 
-	public void addScheduledAt(Music music, LocalDate date, int hour) throws SQLException {
+	public void addScheduledAt(AudioFile music, LocalDate date, int hour) throws SQLException {
 		int nextOrder = getScheduledAt(date, hour).size();
 
 		DateTimeFormatter formater = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -80,12 +80,12 @@ public class MusicDatabase {
 		preparedStatement.executeUpdate();
 	}
 
-	public ArrayList<Jingle> getCartouches(String panel) throws SQLException {
+	public ArrayList<AudioFile> getCartouches(String panel) throws SQLException {
 		String query = "SELECT * FROM cartouches WHERE panels LIKE ?";
 		PreparedStatement preparedStatement = connection.prepareStatement(query);
 		preparedStatement.setString(1, "%" + panel + "%");
 		ResultSet queryResults = preparedStatement.executeQuery();
-		return getQueryResultCartouche(queryResults);
+		return AudioFile.getFromQueryResult(queryResults);
 	}
 
 	public ArrayList<String> getCategories(Kind kind) throws SQLException {
@@ -123,9 +123,9 @@ public class MusicDatabase {
 
 		switch (kind) {
 		case MUSIC:
-			return new ArrayList<AudioFile>(getQueryResultMusics(queryResults));
+			return new ArrayList<AudioFile>(AudioFile.getFromQueryResult(queryResults));
 		case CARTOUCHE:
-			return new ArrayList<AudioFile>(getQueryResultCartouche(queryResults));
+			return new ArrayList<AudioFile>(AudioFile.getFromQueryResult(queryResults));
 		case JINGLE:
 			throw new Exception("Not implemented");
 		case TAPIS:
@@ -224,10 +224,10 @@ public class MusicDatabase {
 		preparedStatement.executeUpdate();
 	}
 
-	public ArrayList<Music> getRandomMusicFromCategorie(ArrayList<String> categories, int nbMusics)
+	public ArrayList<AudioFile> getRandomMusicFromCategorie(ArrayList<String> categories, int nbMusics)
 			throws SQLException {
 		if (categories.isEmpty())
-			return new ArrayList<Music>();
+			return new ArrayList<AudioFile>();
 
 		String toInsert = "(";
 		for (int i = 0; i < categories.size(); i++) {
@@ -247,11 +247,11 @@ public class MusicDatabase {
 		}
 		preparedStatement.setInt(categories.size() + 1, nbMusics);
 		queryResults = preparedStatement.executeQuery();
-		return getQueryResultMusics(queryResults);
+		return AudioFile.getFromQueryResult(queryResults);
 	}
 
 	// TODO : gérer les startTime / endTime et albumIndex qui est toujours à 0
-	public void addNewMusic(Music music) throws SQLException {
+	public void addNewMusic(AudioFile music) throws SQLException {
 		int nextID = getNextAutoIncrement("musics");
 
 		String query = "INSERT INTO musics(title, artist, album, albumIndex, genre, duration, addTime, startTime, endTime, path)"
@@ -274,47 +274,6 @@ public class MusicDatabase {
 		preparedStatement.setInt(1, nextID);
 		preparedStatement.setString(2, music.genre);
 		preparedStatement.executeUpdate();
-	}
-
-	private ArrayList<Music> getQueryResultMusics(ResultSet queryResults) throws SQLException {
-		ArrayList<Music> result = new ArrayList<Music>();
-		while (queryResults.next()) {
-			int ID = queryResults.getInt("ID");
-			Music curData = new Music(ID, queryResults.getString("title"), queryResults.getString("artist"),
-					queryResults.getString("album"), queryResults.getString("genre"),
-					getCategoriesFromID(ID, "musics_categories"), queryResults.getInt("duration"),
-					queryResults.getInt("startTime"), queryResults.getInt("endTime"), queryResults.getString("path"));
-			result.add(curData);
-		}
-		return result;
-	}
-
-	private ArrayList<Jingle> getQueryResultCartouche(ResultSet queryResults) throws SQLException {
-		ArrayList<Jingle> result = new ArrayList<Jingle>();
-		while (queryResults.next()) {
-			int ID = queryResults.getInt("ID");
-			Jingle curData = new Jingle(ID, queryResults.getString("title"),
-					queryResults.getString("panels").split(";"), getCategoriesFromID(ID, "cartouches_categories"),
-					queryResults.getInt("duration"), queryResults.getInt("startTime"), queryResults.getInt("endTime"),
-					queryResults.getString("path"));
-			result.add(curData);
-		}
-		return result;
-	}
-
-	private String[] getCategoriesFromID(int ID, String tableName) throws SQLException {
-		String query = "SELECT categorie FROM " + tableName + " WHERE ID = " + ID;
-		ResultSet queryResults = connection.createStatement().executeQuery(query);
-		ArrayList<String> tmp = new ArrayList<>();
-		while (queryResults.next()) {
-			tmp.add(queryResults.getString("categorie"));
-		}
-
-		String[] result = new String[tmp.size()];
-		for (int i = 0; i < tmp.size(); i++) {
-			result[i] = tmp.get(i);
-		}
-		return result;
 	}
 
 	private String getTableNameFromKind(Kind kind) {
@@ -341,5 +300,20 @@ public class MusicDatabase {
 		queryResults = preparedStatement.executeQuery();
 		queryResults.next();
 		return queryResults.getInt("AUTO_INCREMENT");
+	}
+	
+	public static String[] getCategoriesFromID(int ID, String tableName) throws SQLException {
+		String query = "SELECT categorie FROM " + tableName + " WHERE ID = " + ID;
+		ResultSet queryResults = connection.createStatement().executeQuery(query);
+		ArrayList<String> tmp = new ArrayList<>();
+		while (queryResults.next()) {
+			tmp.add(queryResults.getString("categorie"));
+		}
+
+		String[] result = new String[tmp.size()];
+		for (int i = 0; i < tmp.size(); i++) {
+			result[i] = tmp.get(i);
+		}
+		return result;
 	}
 }

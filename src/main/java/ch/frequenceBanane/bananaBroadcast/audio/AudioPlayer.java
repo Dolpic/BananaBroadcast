@@ -65,6 +65,7 @@ public class AudioPlayer {
 
 		audioFile = file;
 		AudioInputStream inputStream;
+		
 		// TODO Would it be better to throw exceptions ?
 		try {
 			inputStream = AudioUtils.getAudioFileStream(currentClip.getFormat(), file.path);
@@ -91,10 +92,10 @@ public class AudioPlayer {
 
 	/** Start the current loaded music. If no music is loaded, does nothing */
 	public void play() {
-		if (currentClip.getMicrosecondLength() == currentClip.getMicrosecondPosition())
-			setPosition(0);
-		currentClip.start();
-		isPlaying = true;
+		if(hasAudioLoaded()) {
+			currentClip.start();
+			isPlaying = true;
+		}
 	}
 
 	/** Pause the current music. If no music is playing does nothing */
@@ -113,7 +114,7 @@ public class AudioPlayer {
 	/** Put the cursor at the end of the audio file and stop it */
 	public void goToEnd() {
 		currentClip.stop();
-		setPosition(currentClip.getMicrosecondLength() - 1000);
+		setPosition(currentClip.getMicrosecondLength());
 		isPlaying = false;
 	}
 
@@ -157,6 +158,13 @@ public class AudioPlayer {
 	 */
 	public boolean isRepeating() {
 		return isRepeating;
+	}
+	
+	/**
+	 * @return true if the audioPlayer has a audio file loaded, false otherwise
+	 */
+	public boolean hasAudioLoaded() {
+		return audioFile != null;
 	}
 
 	/** @return the current AudioFile used by the player */

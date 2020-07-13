@@ -1,4 +1,4 @@
-package ch.frequenceBanane.bananaBroadcast.audio;
+/*package ch.frequenceBanane.bananaBroadcast.audio;
 
 import ch.frequenceBanane.bananaBroadcast.database.Music;
 
@@ -7,13 +7,13 @@ import ch.frequenceBanane.bananaBroadcast.database.Music;
  * 
  * @author Corentin Junod
  * @author corentin.junod@epfl.ch
- */
+ 
 
 public class MusicPlayer extends AudioPlayer {
 
 	private Music music;
 
-	/** Creates a new MusicPlayer **/
+	/** Creates a new MusicPlayer *
 	public MusicPlayer() {
 		super();
 	}
@@ -22,7 +22,7 @@ public class MusicPlayer extends AudioPlayer {
 	 * Load a Music
 	 * 
 	 * @param file The Music to load
-	 */
+	 
 	public void loadMusic(Music file) {
 		this.music = file;
 		super.load(file);
@@ -31,8 +31,8 @@ public class MusicPlayer extends AudioPlayer {
 	/**
 	 * @return A copy of the current music used by the audioPlayer, null if no music
 	 *         is loaded
-	 */
+	 
 	public Music getCurrentAudioFile() {
 		return music;
 	}
-}
+}*/

@@ -114,13 +114,13 @@ public class AudioFileListView<AudioType extends AudioFile> {
 		return rootLayout;
 	}
 
-	public static ArrayList<Function<Music, String>> getMusicData() {
-		return new ArrayList<>(Arrays.asList((e) -> e.title, (e) -> e.artist, (e) -> String.valueOf(e.duration),
-				(e) -> String.join(",", e.categories)));
-	};
-
-	public static ArrayList<Function<AudioFile, String>> getAudioData() {
-		return new ArrayList<>(Arrays.asList((e) -> e.title, (e) -> "-", (e) -> String.valueOf(e.duration),
-				(e) -> e.categories.length == 0 ? "" : String.join(",", e.categories)));
+	public static ArrayList<Function<AudioFile, String>> getAudioFileData() {
+		return new ArrayList<>(
+			Arrays.asList(
+					(e) -> e.title, 
+					(e) -> e.artist, 
+					(e) -> String.valueOf(e.duration),
+					(e) -> String.join(",", e.categories))
+			);
 	};
 }

@@ -1,4 +1,4 @@
-package ch.frequenceBanane.bananaBroadcast.gui.player;
+/*package ch.frequenceBanane.bananaBroadcast.gui.player;
 
 import java.io.IOException;
 
@@ -10,7 +10,7 @@ import javafx.fxml.FXML;
 
 public class JinglePlayerView extends AudioPlayerView {
 
-	public JinglePlayerView(JinglePlayer jinglePlayer) throws IOException {
+	public JinglePlayerView(AudioPlayer jinglePlayer) throws IOException {
 		audioPlayer = jinglePlayer;
 		GuiApp.loadLayout(this, "JinglePlayer.fxml");
 	}
@@ -35,7 +35,7 @@ public class JinglePlayerView extends AudioPlayerView {
 		setEvents();
 	}
 
-	/** Update the timers shown in the player */
+	/** Update the timers shown in the player 
 	public void updateTimers() {
 		Platform.runLater(() -> remaining.setText("- " + formatTime(audioPlayer.getRemainingTime())));
 	}
@@ -66,4 +66,4 @@ public class JinglePlayerView extends AudioPlayerView {
 			}
 		});
 	}
-}
+}*/

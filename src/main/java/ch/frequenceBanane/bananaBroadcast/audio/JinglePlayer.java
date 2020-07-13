@@ -1,4 +1,4 @@
-package ch.frequenceBanane.bananaBroadcast.audio;
+/*package ch.frequenceBanane.bananaBroadcast.audio;
 
 import ch.frequenceBanane.bananaBroadcast.database.Jingle;
 
@@ -7,12 +7,12 @@ import ch.frequenceBanane.bananaBroadcast.database.Jingle;
  * 
  * @author Corentin Junod
  * @author corentin.junod@epfl.ch
- */
+ 
 public class JinglePlayer extends AudioPlayer {
 
 	private Jingle jingle;
 
-	/** Creates a new JinglePlayer **/
+	/** Creates a new JinglePlayer *
 	public JinglePlayer() {
 		super();
 	}
@@ -21,7 +21,7 @@ public class JinglePlayer extends AudioPlayer {
 	 * Load a Jingle
 	 * 
 	 * @param file The Jingle to load
-	 */
+	 
 	public void load(Jingle file) {
 		this.jingle = file;
 		super.load(file);
@@ -30,8 +30,8 @@ public class JinglePlayer extends AudioPlayer {
 	/**
 	 * @return A copy of the current Jingle used by the audioPlayer, null if no
 	 *         jingle is loaded
-	 */
+	 
 	public Jingle getCurrentAudioFile() {
 		return jingle;
 	}
-}
+}*/

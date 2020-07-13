@@ -14,12 +14,10 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 
 import ch.frequenceBanane.bananaBroadcast.BananaBroadcast;
 import ch.frequenceBanane.bananaBroadcast.database.AudioFile;
-import ch.frequenceBanane.bananaBroadcast.database.Music;
 import ch.frequenceBanane.bananaBroadcast.database.MusicDatabase.Kind;
 import ch.frequenceBanane.bananaBroadcast.gui.categorySelector.CategorySelectorView;
 import ch.frequenceBanane.bananaBroadcast.gui.mainPane.MainPane;
 import ch.frequenceBanane.bananaBroadcast.gui.player.AudioPlayerView;
-import ch.frequenceBanane.bananaBroadcast.gui.player.MusicPlayerView;
 import ch.frequenceBanane.bananaBroadcast.gui.playlist.AudioFileListView;
 import ch.frequenceBanane.bananaBroadcast.utils.Log;
 import javafx.application.Application;
@@ -27,6 +25,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuItem;
@@ -45,14 +44,14 @@ public class GuiApp extends Application {
 	
 	private Stage primaryStage;
 
-	private MusicPlayerView player1;
-	private MusicPlayerView player2;
+	private AudioPlayerView player1;
+	private AudioPlayerView player2;
 	private AudioPlayerView mainPlayer;
 
 	private MainPane mainPane;
 
-	private AudioFileListView<Music> playlist;
-	private AudioFileListView<Music> playlistOld;
+	private AudioFileListView<AudioFile> playlist;
+	private AudioFileListView<AudioFile> playlistOld;
 	private AudioFileListView<AudioFile> databaseList;
 
 	private CategorySelectorView categorySelector;
@@ -84,15 +83,15 @@ public class GuiApp extends Application {
 					config.getString("GPIO_IP"),
 					config.getInt("GPIO_Port"));
 		} catch (SQLException e) {
-			die("Unable to open the database, please check that the database is reachable and the creditentials are corrects.\n\nThey are set in config.properties");
+			die("Unable to open the database, please check that the database is reachable and the creditentials are corrects.\n\nThey are set in config.properties\n\n Error : "+e.getMessage());
 		}
 		
 		try {
-			playlist         = new AudioFileListView<>(app.playlist,     AudioFileListView.getMusicData());
-			playlistOld      = new AudioFileListView<>(app.playlistOld,  AudioFileListView.getMusicData());
-			databaseList     = new AudioFileListView<>(app.databaseList, AudioFileListView.getAudioData());
-			player1          = new MusicPlayerView(app.player1);
-			player2          = new MusicPlayerView(app.player2);
+			playlist         = new AudioFileListView<>(app.playlist,     AudioFileListView.getAudioFileData());
+			playlistOld      = new AudioFileListView<>(app.playlistOld,  AudioFileListView.getAudioFileData());
+			databaseList     = new AudioFileListView<>(app.databaseList, AudioFileListView.getAudioFileData());
+			player1          = new AudioPlayerView(app.player1);
+			player2          = new AudioPlayerView(app.player2);
 			mainPlayer       = new AudioPlayerView(app.mainPlayer);
 			mainPane         = new MainPane(app, primaryStage);
 			categorySelector = new CategorySelectorView(app.categorySelector);
@@ -196,12 +195,13 @@ public class GuiApp extends Application {
 	 * @param controller The Object on which the layout is loaded, generally the
 	 *                   caller itself (this)
 	 * @param path       The path to the .fxml layout file
+	 * @return The loaded object hierarchy
 	 * @throws IOException If an error occurs during the file operations
 	 */
-	public static void loadLayout(final Object controller, final String file) throws IOException {
+	public static Parent loadLayout(final Object controller, final String file) throws IOException {
 		FXMLLoader loader = new FXMLLoader(GuiApp.class.getClassLoader().getResource("fxml/" + file));
 		loader.setController(controller);
-		loader.load();
+		return loader.load();
 	}
 
 	/**

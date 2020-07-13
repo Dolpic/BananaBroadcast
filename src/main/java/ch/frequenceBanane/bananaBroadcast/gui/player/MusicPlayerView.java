@@ -1,4 +1,4 @@
-package ch.frequenceBanane.bananaBroadcast.gui.player;
+/*package ch.frequenceBanane.bananaBroadcast.gui.player;
 
 import java.io.IOException;
 
@@ -14,7 +14,7 @@ import javafx.fxml.FXML;
  * 
  * @author Corentin
  * @author corentin.junod@epfl.ch
- */
+ 
 public class MusicPlayerView extends AudioPlayerView {
 
 	private MusicPlayer musicPlayer;
@@ -24,7 +24,7 @@ public class MusicPlayerView extends AudioPlayerView {
 	 * 
 	 * @param musicPlayer the music player controlled by the view
 	 * @throws IOException If an error occurs during the layout file reading
-	 */
+	 
 	public MusicPlayerView(MusicPlayer musicPlayer) throws IOException {
 		this.musicPlayer = musicPlayer;
 		this.audioPlayer = musicPlayer;
@@ -57,4 +57,4 @@ public class MusicPlayerView extends AudioPlayerView {
 			}
 		});
 	}
-}
+}*/
