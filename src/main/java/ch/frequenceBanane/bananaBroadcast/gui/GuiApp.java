@@ -1,9 +1,16 @@
 package ch.frequenceBanane.bananaBroadcast.gui;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.function.Consumer;
+
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.FileBasedConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 
 import ch.frequenceBanane.bananaBroadcast.BananaBroadcast;
 import ch.frequenceBanane.bananaBroadcast.database.AudioFile;
@@ -35,6 +42,8 @@ import javafx.stage.Stage;
 public class GuiApp extends Application {
 
 	private BananaBroadcast app;
+	
+	private Stage primaryStage;
 
 	private MusicPlayerView player1;
 	private MusicPlayerView player2;
@@ -47,11 +56,7 @@ public class GuiApp extends Application {
 	private AudioFileListView<AudioFile> databaseList;
 
 	private CategorySelectorView categorySelector;
-
-	private final String databaseUrl = "jdbc:mysql://localhost:3307/bananabroadcast";
-	private final String databaseUser = "root";
-	private final String databasePassword = "usbw";
-
+	
 	public void startApp() {
 		launch();
 	}
@@ -59,32 +64,42 @@ public class GuiApp extends Application {
 	/** Main functions called by JavaFX. Instantiate the whole program */
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		this.primaryStage = primaryStage;
 		primaryStage.setTitle("BananaBroadcast");
-		try {
-			app = new BananaBroadcast(databaseUrl, databaseUser, databasePassword);
-		} catch (SQLException e) {
-			die("Unable to connect to the database : " + e.getMessage());
-		}
-
-		playlist = new AudioFileListView<>(app.playlist, AudioFileListView.getMusicData());
-		playlistOld = new AudioFileListView<>(app.playlistOld, AudioFileListView.getMusicData());
-		databaseList = new AudioFileListView<>(app.databaseList, AudioFileListView.getAudioData());
-
-		player1 = new MusicPlayerView(app.player1);
-		player2 = new MusicPlayerView(app.player2);
-		mainPlayer = new AudioPlayerView(app.mainPlayer);
-		mainPane = new MainPane(app, primaryStage);
-
-		categorySelector = new CategorySelectorView(app.categorySelector);
-
+		
 		initialize();
-
 		Scene scene = new Scene(mainPane.getRootLayout());
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
 
-	private void initialize() {
+	private void initialize() throws IOException, ConfigurationException {
+		
+		try {
+			Configuration config = getConfiguration();
+			app = new BananaBroadcast(
+					config.getString("Database_URL"), 
+					config.getString("Database_User"), 
+					config.getString("Database_Password"), 
+					config.getString("GPIO_IP"),
+					config.getInt("GPIO_Port"));
+		} catch (SQLException e) {
+			die("Unable to open the database, please check that the database is reachable and the creditentials are corrects.\n\nThey are set in config.properties");
+		}
+		
+		try {
+			playlist         = new AudioFileListView<>(app.playlist,     AudioFileListView.getMusicData());
+			playlistOld      = new AudioFileListView<>(app.playlistOld,  AudioFileListView.getMusicData());
+			databaseList     = new AudioFileListView<>(app.databaseList, AudioFileListView.getAudioData());
+			player1          = new MusicPlayerView(app.player1);
+			player2          = new MusicPlayerView(app.player2);
+			mainPlayer       = new AudioPlayerView(app.mainPlayer);
+			mainPane         = new MainPane(app, primaryStage);
+			categorySelector = new CategorySelectorView(app.categorySelector);
+		} catch (IOException e) {
+			die("Missing required file :"+e.getMessage());
+		}
+		
 		app.categorySelector.setOnSelectedCategoriesChange((selected) -> {
 			try {
 				ArrayList<AudioFile> newList = app.database.getFromCategoriesAndKind(Kind.MUSIC, selected);
@@ -209,5 +224,18 @@ public class GuiApp extends Application {
 		Log.errorDialog(msg);
 		Platform.exit();
 		System.exit(1);
+	}
+	
+	private Configuration getConfiguration() throws IOException, ConfigurationException {
+		org.apache.commons.configuration2.builder.fluent.Parameters params = new org.apache.commons.configuration2.builder.fluent.Parameters();
+		File propertiesFile = new File("config.properties");
+
+		FileBasedConfigurationBuilder<FileBasedConfiguration> builder = 
+				new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+				.configure(params.fileBased().setFile(propertiesFile));
+		builder.setAutoSave(true);
+
+		propertiesFile.createNewFile();
+		return builder.getConfiguration();
 	}
 }

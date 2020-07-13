@@ -38,9 +38,6 @@ public class BananaBroadcast {
 
 	public final CategorySelector categorySelector;
 
-	private final byte[] gpioIp = { 10, 10, 2, (byte) 235 };
-	private final int gpioPort = 93;
-
 	private boolean isInManual = false;
 
 	/**
@@ -52,14 +49,26 @@ public class BananaBroadcast {
 	 * @throws SQLException if the connection to the database fail or an error
 	 *                      occurs during the instantiation
 	 */
-	public BananaBroadcast(final String databaseUrl, final String databaseUser, final String databasePassword)
+	public BananaBroadcast(final String databaseUrl, final String databaseUser, final String databasePassword, final String gpioIp, final int gpioPort)
 			throws SQLException {
+		
+		String[] ipSplit = gpioIp.split("\\.");
+		
+		if(ipSplit.length != 4) {
+			throw new IllegalArgumentException("Given IP address has an invalid format : "+gpioIp);
+		}
+		
+		byte[] ip = {0,0,0,0};
+		for(int i=0; i<4; i++) {
+			ip[i] = (byte)Integer.parseInt(ipSplit[i]);
+		}
+		
 		try {
 			database = new MusicDatabase(databaseUrl, databaseUser, databasePassword);
 			player1 = new MusicPlayer();
 			player2 = new MusicPlayer();
 			mainPlayer = new AudioPlayer();
-			gpio = new GPIOInterface(gpioIp, gpioPort);
+			gpio = new GPIOInterface(ip, gpioPort);
 			recorder = new Recorder("records/");
 			playlist = new Playlist<>();
 			playlistOld = new Playlist<>();
