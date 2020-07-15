@@ -49,8 +49,6 @@ public class AudioFileListView<AudioType extends AudioFile> {
 			final ArrayList<Function<AudioType, String>> getAudioFileData) throws IOException {
 		this.playlist = playlist;
 		this.getAudioFileData = getAudioFileData;
-		File file = new File("TableView.fxml");
-		System.out.println(file.getAbsolutePath());
 		GuiApp.loadLayout(this, "TableView.fxml");
 	}
 

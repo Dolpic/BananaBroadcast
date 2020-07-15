@@ -11,13 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 import ch.frequenceBanane.bananaBroadcast.App;
-import ch.frequenceBanane.bananaBroadcast.database.Jingle;
-import ch.frequenceBanane.bananaBroadcast.database.Music;
 
 
 public class AudioPlayerTest {
 	
-	private final String validFile   = new File(AudioPlayerTest.class.getClassLoader().getResource("audio/sample16.wav").getFile()).getAbsolutePath();
+	/*private final String validFile   = new File(AudioPlayerTest.class.getClassLoader().getResource("audio/sample16.wav").getFile()).getAbsolutePath();
 	private final String invalidFile = new File(AudioPlayerTest.class.getClassLoader().getResource("audio").getFile()).getAbsolutePath()+"/wrongSample.wav";
 
 	boolean onLoadWorks   = false;
@@ -200,7 +198,7 @@ public class AudioPlayerTest {
     Jingle validJingle = new Jingle(0,"",emptyStringArray,emptyStringArray,0,0,0,validFile);
     playerJingle.load(validJingle);
     assertEquals(validJingle, playerJingle.getCurrentAudioFile());
-	}
+	}*/
 	
 	
 }

@@ -23,6 +23,11 @@ import javafx.scene.shape.Line;
  * @author corentin.junod@epfl.ch
  */
 public class AudioPlayerView {
+	
+	public enum AudioPlayerKind {
+		Music, 
+		Cartouche
+	};
 
 	@FXML
 	private GridPane playerRoot;
@@ -41,7 +46,7 @@ public class AudioPlayerView {
 	protected Region button_repeat_region;
 
 	@FXML
-	private Region button_previous_region;
+	private Region button_back_region;
 	@FXML
 	private Region button_next_region;
 
@@ -62,11 +67,9 @@ public class AudioPlayerView {
 	protected Label artist;
 
 	private final int WAVEFORM_SCALE_FACTOR = 3;
+	private final AudioPlayerKind kind;
 
 	protected AudioPlayer audioPlayer;
-
-	protected AudioPlayerView() {
-	}
 
 	/**
 	 * Create a new AudioPlayerView
@@ -74,8 +77,10 @@ public class AudioPlayerView {
 	 * @param audioPlayer The AudioPlayer to graphically show
 	 * @throws IOException If an error occurs during the layout file reading
 	 */
-	public AudioPlayerView(final AudioPlayer audioPlayer) throws IOException {
+	public AudioPlayerView(final AudioPlayer audioPlayer, AudioPlayerKind kind) throws IOException {
 		this.audioPlayer = audioPlayer;
+		this.kind = kind;
+		
 		setOnLoadEvent();
 		GuiApp.loadLayout(this, "MusicPlayer.fxml");
 	}
@@ -90,8 +95,17 @@ public class AudioPlayerView {
 			Platform.runLater(() -> setPauseState());
 		});
 
-		getRootLayout().getStylesheets().add("css/musicPlayer.css");
-
+		switch(kind) {
+			case Music :
+				getRootLayout().getStylesheets().add("css/musicPlayer.css");
+				break;
+			case Cartouche :
+				getRootLayout().getStylesheets().add("css/cartouchePlayer.css");
+				button_back_region.setVisible(false);
+				button_next_region.setVisible(false);
+				break;
+		}
+		
 		// Responsive
 		getRootLayout().widthProperty().addListener((obs, oldValue, newValue) -> {
 			middleLine.setEndX(getRootLayout().getWidth());
@@ -155,6 +169,7 @@ public class AudioPlayerView {
 		Platform.runLater(() -> {
 			if (audioPlayer.getCurrentAudioFile() != null) {
 				title.setText(audioPlayer.getCurrentAudioFile().title);
+				artist.setText(audioPlayer.getCurrentAudioFile().artist);
 			}
 		});
 	}

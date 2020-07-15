@@ -37,18 +37,18 @@ public class AudioPlayer {
 	public AudioPlayer() {
 		selectMixer(0);
 
-		createListenerOnCondition(onFinishRunnables, (event) -> {
-			return event.getType() == LineEvent.Type.STOP && getRemainingTime() <= 0.0 && !isRepeating;
-		});
-		createListenerOnCondition(onEndRunnables, (event) -> {
-			return event.getType() == LineEvent.Type.STOP && getRemainingTime() <= 0.0;
-		});
-		createListenerOnCondition(onLoadRunnables, (event) -> {
-			return event.getType() == LineEvent.Type.OPEN;
-		});
-		createListenerOnCondition(onPlayRunnables, (event) -> {
-			return event.getType() == LineEvent.Type.START;
-		});
+		createListenerOnCondition(onFinishRunnables, (event) -> 
+			event.getType() == LineEvent.Type.STOP && getRemainingTime() <= 0.0 && !isRepeating
+		);
+		createListenerOnCondition(onEndRunnables, (event) -> 
+			event.getType() == LineEvent.Type.STOP && getRemainingTime() <= 0.0
+		);
+		createListenerOnCondition(onLoadRunnables, (event) -> 
+			event.getType() == LineEvent.Type.OPEN
+		);
+		createListenerOnCondition(onPlayRunnables, (event) -> 
+			event.getType() == LineEvent.Type.START
+		);
 	}
 
 	/**

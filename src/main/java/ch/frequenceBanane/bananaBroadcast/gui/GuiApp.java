@@ -18,6 +18,7 @@ import ch.frequenceBanane.bananaBroadcast.database.MusicDatabase.Kind;
 import ch.frequenceBanane.bananaBroadcast.gui.categorySelector.CategorySelectorView;
 import ch.frequenceBanane.bananaBroadcast.gui.mainPane.MainPane;
 import ch.frequenceBanane.bananaBroadcast.gui.player.AudioPlayerView;
+import ch.frequenceBanane.bananaBroadcast.gui.player.AudioPlayerView.AudioPlayerKind;
 import ch.frequenceBanane.bananaBroadcast.gui.playlist.AudioFileListView;
 import ch.frequenceBanane.bananaBroadcast.utils.Log;
 import javafx.application.Application;
@@ -86,18 +87,18 @@ public class GuiApp extends Application {
 			die("Unable to open the database, please check that the database is reachable and the creditentials are corrects.\n\nThey are set in config.properties\n\n Error : "+e.getMessage());
 		}
 		
-		try {
+		//try {
 			playlist         = new AudioFileListView<>(app.playlist,     AudioFileListView.getAudioFileData());
 			playlistOld      = new AudioFileListView<>(app.playlistOld,  AudioFileListView.getAudioFileData());
 			databaseList     = new AudioFileListView<>(app.databaseList, AudioFileListView.getAudioFileData());
-			player1          = new AudioPlayerView(app.player1);
-			player2          = new AudioPlayerView(app.player2);
-			mainPlayer       = new AudioPlayerView(app.mainPlayer);
+			player1          = new AudioPlayerView(app.player1,    AudioPlayerKind.Music);
+			player2          = new AudioPlayerView(app.player2,    AudioPlayerKind.Music);
+			mainPlayer       = new AudioPlayerView(app.mainPlayer, AudioPlayerKind.Music);
 			mainPane         = new MainPane(app, primaryStage);
 			categorySelector = new CategorySelectorView(app.categorySelector);
-		} catch (IOException e) {
+		/*} catch (IOException e) {
 			die("Missing required file :"+e.getMessage());
-		}
+		}*/
 		
 		app.categorySelector.setOnSelectedCategoriesChange((selected) -> {
 			try {

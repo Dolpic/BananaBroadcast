@@ -11,6 +11,7 @@ import ch.frequenceBanane.bananaBroadcast.database.AudioFile;
 import ch.frequenceBanane.bananaBroadcast.database.MusicDatabase;
 import ch.frequenceBanane.bananaBroadcast.gui.GuiApp;
 import ch.frequenceBanane.bananaBroadcast.gui.player.AudioPlayerView;
+import ch.frequenceBanane.bananaBroadcast.gui.player.AudioPlayerView.AudioPlayerKind;
 import ch.frequenceBanane.bananaBroadcast.gui.scheduler.SchedulerView;
 import ch.frequenceBanane.bananaBroadcast.scheduling.Scheduler;
 import ch.frequenceBanane.bananaBroadcast.utils.AudioUtils;
@@ -73,12 +74,12 @@ public class MainPane {
 	@FXML
 	private ToggleButton manualButton;
 
-	private final CartouchesArray jingles;
+	private final CartouchesArray cartouches;
 	private final Stage primaryStage;
 	private final Scheduler scheduler;
 	private final MusicDatabase database;
 	private final BananaBroadcast app;
-	private final ArrayList<AudioPlayerView> jinglesPlayer = new ArrayList<AudioPlayerView>();
+	private final ArrayList<AudioPlayerView> cartouchesPlayer = new ArrayList<AudioPlayerView>();
 
 	/**
 	 * Create a new main layout for the app
@@ -88,7 +89,7 @@ public class MainPane {
 	 * @throws IOException If an error occurs during layout file reading
 	 */
 	public MainPane(BananaBroadcast app, Stage primaryStage) throws IOException {
-		this.jingles = app.jingles;
+		this.cartouches = app.jingles;
 		this.scheduler = app.scheduler;
 		this.primaryStage = primaryStage;
 		this.database = app.database;
@@ -98,18 +99,18 @@ public class MainPane {
 
 	@FXML
 	public void initialize() throws IOException {
-		for (int i = 0; i < jingles.size(); i++) {
-			AudioPlayerView cur = new AudioPlayerView(jingles.get(i));
-			jinglesPlayer.add(cur);
-			tableJingles.add(cur.getRootLayout(), i % tableJingles.getColumnCount(), i / tableJingles.getColumnCount());
+		for (int i = 0; i < cartouches.size(); i++) {
+			AudioPlayerView cur = new AudioPlayerView(cartouches.get(i), AudioPlayerKind.Cartouche);
+			//cartouchesPlayer.add(cur);
+			//tableJingles.add(cur.getRootLayout(), i % tableJingles.getColumnCount(), i / tableJingles.getColumnCount());
 		}
 		loadEvents();
 	}
 
 	/** Method to call after the primaryStage is showed */
 	public void afterShow() {
-		for (int i = 0; i < jinglesPlayer.size(); i++) {
-			jinglesPlayer.get(i).loadWaveform();
+		for (int i = 0; i < cartouchesPlayer.size(); i++) {
+			cartouchesPlayer.get(i).loadWaveform();
 		}
 	}
 
