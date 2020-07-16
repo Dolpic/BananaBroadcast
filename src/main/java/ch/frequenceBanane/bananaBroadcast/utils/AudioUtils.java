@@ -176,14 +176,14 @@ public class AudioUtils {
 			org.jaudiotagger.audio.AudioFile audioFile = AudioFileIO.read(musicFile);
 			Tag tag = audioFile.getTag();
 
-			String[] categories = { getTextTagValue(FieldKey.GENRE, tag) };
+			String[] categories = { tag.getFirst(FieldKey.GENRE) };
 			
 			AudioFile result = new AudioFile();
 
-			result.title      = getTextTagValue(FieldKey.TITLE, tag);
-			result.artist     = getTextTagValue(FieldKey.ARTIST, tag);
-			result.album      = getTextTagValue(FieldKey.ALBUM, tag);
-			result.genre      = getTextTagValue(FieldKey.GENRE, tag);
+			result.title      = tag.getFirst(FieldKey.TITLE);
+			result.artist     = tag.getFirst(FieldKey.ARTIST);
+			result.album      = tag.getFirst(FieldKey.ALBUM);
+			result.genre      = tag.getFirst(FieldKey.GENRE);
 			result.categories = categories;
 			result.endTime    = audioFile.getAudioHeader().getTrackLength();
 			result.path       = musicFile.getAbsolutePath();
@@ -223,14 +223,14 @@ public class AudioUtils {
 		}
 	}
 
-	private static String getTextTagValue(final FieldKey key, final Tag tag) {
-		String value = tag.getFirstField(key).toString();
+	/*private static String getTextTagValue(final FieldKey key, final Tag tag) {
+		String value = tag.getFirst(key);
 		if (value.startsWith("Text=")) {
 			return value.substring(6, value.length() - 3);
 		} else {
 			return value;
 		}
-	}
+	}*/
 
 	private static BufferedImage createImageWithBackground(final int width, final int height, Color backgroundColor) {
 		BufferedImage output = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);

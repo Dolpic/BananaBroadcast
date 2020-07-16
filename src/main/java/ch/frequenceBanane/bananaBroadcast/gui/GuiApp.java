@@ -71,6 +71,7 @@ public class GuiApp extends Application {
 		Scene scene = new Scene(mainPane.getRootLayout());
 		primaryStage.setScene(scene);
 		primaryStage.show();
+		afterShow();
 	}
 
 	private void initialize() throws IOException, ConfigurationException {
@@ -87,7 +88,7 @@ public class GuiApp extends Application {
 			die("Unable to open the database, please check that the database is reachable and the creditentials are corrects.\n\nThey are set in config.properties\n\n Error : "+e.getMessage());
 		}
 		
-		//try {
+		try {
 			playlist         = new AudioFileListView<>(app.playlist,     AudioFileListView.getAudioFileData());
 			playlistOld      = new AudioFileListView<>(app.playlistOld,  AudioFileListView.getAudioFileData());
 			databaseList     = new AudioFileListView<>(app.databaseList, AudioFileListView.getAudioFileData());
@@ -96,9 +97,9 @@ public class GuiApp extends Application {
 			mainPlayer       = new AudioPlayerView(app.mainPlayer, AudioPlayerKind.Music);
 			mainPane         = new MainPane(app, primaryStage);
 			categorySelector = new CategorySelectorView(app.categorySelector);
-		/*} catch (IOException e) {
+		} catch (IOException e) {
 			die("Missing required file :"+e.getMessage());
-		}*/
+		}
 		
 		app.categorySelector.setOnSelectedCategoriesChange((selected) -> {
 			try {
@@ -128,33 +129,9 @@ public class GuiApp extends Application {
 		databaseList.setOnElementDoubleClick(loadAudioFileInPlayer);
 
 		playlist.setSortable(false);
-
-		app.player1.addOnLoadEvent(() -> {
-			player1.setTitle();
-		});
-
-		app.player1.addOnPlayEvent(() -> {
-			player1.updateTimers();
-			player1.setPlayState();
-		});
-
-		app.player1.addOnFinishEvent(() -> {
-			player1.setPauseState();
-		});
-
-		app.player2.addOnLoadEvent(() -> {
-			player2.setTitle();
-		});
-
-		app.player2.addOnPlayEvent(() -> {
-			player2.updateTimers();
-			player2.setPlayState();
-		});
-
-		app.player2.addOnFinishEvent(() -> {
-			player2.setPauseState();
-		});
-
+	}
+	
+	private void afterShow() {
 		mainPane.afterShow();
 		player1.afterShow();
 		player2.afterShow();

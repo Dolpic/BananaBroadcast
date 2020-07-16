@@ -28,10 +28,10 @@ public class AudioPlayer {
 	private boolean isPlaying = false;
 	private boolean isRepeating = false;
 
-	private ArrayList<Runnable> onPlayRunnables = new ArrayList<Runnable>();
+	private ArrayList<Runnable> onPlayRunnables   = new ArrayList<Runnable>();
 	private ArrayList<Runnable> onFinishRunnables = new ArrayList<Runnable>();
-	private ArrayList<Runnable> onEndRunnables = new ArrayList<Runnable>();
-	private ArrayList<Runnable> onLoadRunnables = new ArrayList<Runnable>();
+	private ArrayList<Runnable> onEndRunnables    = new ArrayList<Runnable>();
+	private ArrayList<Runnable> onLoadRunnables   = new ArrayList<Runnable>();
 
 	/** Create a new AudioPlayer with the first peripheral of the system selected */
 	public AudioPlayer() {

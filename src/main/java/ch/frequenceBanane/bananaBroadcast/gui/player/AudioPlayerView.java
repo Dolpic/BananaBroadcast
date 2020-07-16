@@ -81,7 +81,6 @@ public class AudioPlayerView {
 		this.audioPlayer = audioPlayer;
 		this.kind = kind;
 		
-		setOnLoadEvent();
 		GuiApp.loadLayout(this, "MusicPlayer.fxml");
 	}
 
@@ -93,6 +92,14 @@ public class AudioPlayerView {
 
 		audioPlayer.addOnFinishEvent(() -> {
 			Platform.runLater(() -> setPauseState());
+		});
+		
+		audioPlayer.addOnLoadEvent(() -> {
+			Platform.runLater(() -> {
+				setTitle();
+				loadWaveform();
+				updateTimers();
+			});
 		});
 
 		switch(kind) {
@@ -128,8 +135,9 @@ public class AudioPlayerView {
 
 	/** Load the waveform of the AudioFile and set it as a background */
 	public void loadWaveform() {
-		if (audioPlayer.getCurrentAudioFile() == null)
+		if (audioPlayer.getCurrentAudioFile() == null) {
 			return;
+		}
 
 		int width = (int) backgroundPane.getWidth();
 		int height = (int) backgroundPane.getHeight();
@@ -179,6 +187,23 @@ public class AudioPlayerView {
 		audioPlayer.reload();
 	}
 
+	/** Update the timers shown in the player */
+	public void updateTimers() {
+		Platform.runLater(() -> {
+			remaining.setText("- " + formatTime(audioPlayer.getRemainingTime()));
+			elapsed.setText(formatTime(audioPlayer.getElapsedTime()));
+		});
+	}
+
+	private static String formatTime(double duration) {
+		int min = (int) Math.floor(duration / 60);
+		duration -= min * 60;
+		int sec = (int) Math.floor(duration);
+		duration -= sec;
+		int subSec = (int) Math.floor(duration * 100);
+		return String.format("%02d", min) + " : " + String.format("%02d", sec) + " : " + String.format("%02d", subSec);
+	}
+	
 	/** Apply the style when the repetition is activated */
 	public void setRepeatedActivatedState() {
 		button_repeat_region.getStyleClass().add("button_repeat_activated");
@@ -203,24 +228,7 @@ public class AudioPlayerView {
 		button_play_region.getStyleClass().add("button_play_region_play");
 	}
 
-	/** Update the timers shown in the player */
-	public void updateTimers() {
-		Platform.runLater(() -> {
-			remaining.setText("- " + formatTime(audioPlayer.getRemainingTime()));
-			elapsed.setText(formatTime(audioPlayer.getElapsedTime()));
-		});
-	}
-
-	protected static String formatTime(double duration) {
-		int min = (int) Math.floor(duration / 60);
-		duration -= min * 60;
-		int sec = (int) Math.floor(duration);
-		duration -= sec;
-		int subSec = (int) Math.floor(duration * 100);
-		return String.format("%02d", min) + " : " + String.format("%02d", sec) + " : " + String.format("%02d", subSec);
-	}
-
-	protected void setEvents() {
+	private void setEvents() {
 
 		GuiApp.setOnActionButton(button_previous, (event) -> {
 			setPauseState();
@@ -255,17 +263,6 @@ public class AudioPlayerView {
 				audioPlayer.setRepeat(true);
 				setRepeatedActivatedState();
 			}
-		});
-	}
-
-	private void setOnLoadEvent() {
-		audioPlayer.addOnLoadEvent(() -> {
-			Platform.runLater(() -> {
-				setTitle();
-				artist.setText(" - ");
-				loadWaveform();
-				updateTimers();
-			});
 		});
 	}
 }

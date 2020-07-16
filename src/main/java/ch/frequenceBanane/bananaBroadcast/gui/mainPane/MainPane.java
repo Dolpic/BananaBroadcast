@@ -101,8 +101,8 @@ public class MainPane {
 	public void initialize() throws IOException {
 		for (int i = 0; i < cartouches.size(); i++) {
 			AudioPlayerView cur = new AudioPlayerView(cartouches.get(i), AudioPlayerKind.Cartouche);
-			//cartouchesPlayer.add(cur);
-			//tableJingles.add(cur.getRootLayout(), i % tableJingles.getColumnCount(), i / tableJingles.getColumnCount());
+			cartouchesPlayer.add(cur);
+			tableJingles.add(cur.getRootLayout(), i % tableJingles.getColumnCount(), i / tableJingles.getColumnCount());
 		}
 		loadEvents();
 	}
