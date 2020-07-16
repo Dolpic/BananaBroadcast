@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.*;
 
-import java.io.File;
-
 import ch.frequenceBanane.bananaBroadcast.database.*;
 import ch.frequenceBanane.bananaBroadcast.gui.GuiApp;
 import ch.frequenceBanane.bananaBroadcast.scheduling.Playlist;
@@ -79,7 +77,7 @@ public class AudioFileListView<AudioType extends AudioFile> {
 		});
 	}
 
-	// C'est bien la pire mani�re de peupler un tableau que j'ai jamais vu.
+	// C'est bien la pire maniere de peupler un tableau que j'ai jamais vu.
 	@SuppressWarnings("unchecked")
 	public void updateView() {
 
@@ -110,6 +108,10 @@ public class AudioFileListView<AudioType extends AudioFile> {
 
 	public VBox getRootLayout() {
 		return rootLayout;
+	}
+	
+	public Playlist<AudioType> getPlaylist() {
+		return playlist;
 	}
 
 	public static ArrayList<Function<AudioFile, String>> getAudioFileData() {

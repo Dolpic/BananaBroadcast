@@ -7,7 +7,6 @@ import java.io.IOException;
 import ch.frequenceBanane.bananaBroadcast.audio.*;
 import ch.frequenceBanane.bananaBroadcast.gui.GuiApp;
 import ch.frequenceBanane.bananaBroadcast.utils.AudioUtils;
-import ch.frequenceBanane.bananaBroadcast.utils.Log;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

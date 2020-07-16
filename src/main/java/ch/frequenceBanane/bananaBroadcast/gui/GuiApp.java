@@ -3,7 +3,6 @@ package ch.frequenceBanane.bananaBroadcast.gui;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import org.apache.commons.configuration2.Configuration;
@@ -13,13 +12,7 @@ import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
 import ch.frequenceBanane.bananaBroadcast.BananaBroadcast;
-import ch.frequenceBanane.bananaBroadcast.database.AudioFile;
-import ch.frequenceBanane.bananaBroadcast.database.MusicDatabase.Kind;
-import ch.frequenceBanane.bananaBroadcast.gui.categorySelector.CategorySelectorView;
 import ch.frequenceBanane.bananaBroadcast.gui.mainPane.MainPane;
-import ch.frequenceBanane.bananaBroadcast.gui.player.AudioPlayerView;
-import ch.frequenceBanane.bananaBroadcast.gui.player.AudioPlayerView.AudioPlayerKind;
-import ch.frequenceBanane.bananaBroadcast.gui.playlist.AudioFileListView;
 import ch.frequenceBanane.bananaBroadcast.utils.Log;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -42,20 +35,8 @@ import javafx.stage.Stage;
 public class GuiApp extends Application {
 
 	private BananaBroadcast app;
-	
 	private Stage primaryStage;
-
-	private AudioPlayerView player1;
-	private AudioPlayerView player2;
-	private AudioPlayerView mainPlayer;
-
 	private MainPane mainPane;
-
-	private AudioFileListView<AudioFile> playlist;
-	private AudioFileListView<AudioFile> playlistOld;
-	private AudioFileListView<AudioFile> databaseList;
-
-	private CategorySelectorView categorySelector;
 	
 	public void startApp() {
 		launch();
@@ -89,52 +70,14 @@ public class GuiApp extends Application {
 		}
 		
 		try {
-			playlist         = new AudioFileListView<>(app.playlist,     AudioFileListView.getAudioFileData());
-			playlistOld      = new AudioFileListView<>(app.playlistOld,  AudioFileListView.getAudioFileData());
-			databaseList     = new AudioFileListView<>(app.databaseList, AudioFileListView.getAudioFileData());
-			player1          = new AudioPlayerView(app.player1,    AudioPlayerKind.Music);
-			player2          = new AudioPlayerView(app.player2,    AudioPlayerKind.Music);
-			mainPlayer       = new AudioPlayerView(app.mainPlayer, AudioPlayerKind.Music);
-			mainPane         = new MainPane(app, primaryStage);
-			categorySelector = new CategorySelectorView(app.categorySelector);
+			mainPane = new MainPane(app, primaryStage);
 		} catch (IOException e) {
 			die("Missing required file :"+e.getMessage());
 		}
-		
-		app.categorySelector.setOnSelectedCategoriesChange((selected) -> {
-			try {
-				ArrayList<AudioFile> newList = app.database.getFromCategoriesAndKind(Kind.MUSIC, selected);
-				app.databaseList.removeAll();
-				app.databaseList.addAtEnd(newList);
-				databaseList.updateView();
-			} catch (Exception e) {
-				Log.error("Unable to update the categorie lists : " + e.getMessage());
-			}
-		});
-
-		mainPane.addTopLeftNode(player1.getRootLayout());
-		mainPane.addTopRightNode(player2.getRootLayout());
-		mainPane.addMainPlayerPane(mainPlayer.getRootLayout());
-		mainPane.addBottomTopNode(playlistOld.getRootLayout());
-		mainPane.addBottomBottomNode(playlist.getRootLayout());
-		mainPane.addDatabaseListPane(databaseList.getRootLayout());
-		mainPane.addCategorySelector(categorySelector.getRootLayout());
-
-		Consumer<AudioFile> loadAudioFileInPlayer = (AudioFile audioFile) -> {
-			app.mainPlayer.load(audioFile);
-		};
-
-		playlist.setOnElementDoubleClick(loadAudioFileInPlayer);
-		playlistOld.setOnElementDoubleClick(loadAudioFileInPlayer);
-		databaseList.setOnElementDoubleClick(loadAudioFileInPlayer);
-
-		playlist.setSortable(false);
 	}
 	
 	private void afterShow() {
 		mainPane.afterShow();
-		player1.afterShow();
-		player2.afterShow();
 	}
 
 	/**

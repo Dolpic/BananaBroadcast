@@ -5,13 +5,17 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import ch.frequenceBanane.bananaBroadcast.BananaBroadcast;
 import ch.frequenceBanane.bananaBroadcast.database.AudioFile;
 import ch.frequenceBanane.bananaBroadcast.database.MusicDatabase;
+import ch.frequenceBanane.bananaBroadcast.database.MusicDatabase.Kind;
 import ch.frequenceBanane.bananaBroadcast.gui.GuiApp;
+import ch.frequenceBanane.bananaBroadcast.gui.categorySelector.CategorySelectorView;
 import ch.frequenceBanane.bananaBroadcast.gui.player.AudioPlayerView;
 import ch.frequenceBanane.bananaBroadcast.gui.player.AudioPlayerView.AudioPlayerKind;
+import ch.frequenceBanane.bananaBroadcast.gui.playlist.AudioFileListView;
 import ch.frequenceBanane.bananaBroadcast.gui.scheduler.SchedulerView;
 import ch.frequenceBanane.bananaBroadcast.scheduling.Scheduler;
 import ch.frequenceBanane.bananaBroadcast.utils.AudioUtils;
@@ -80,6 +84,16 @@ public class MainPane {
 	private final MusicDatabase database;
 	private final BananaBroadcast app;
 	private final ArrayList<AudioPlayerView> cartouchesPlayer = new ArrayList<AudioPlayerView>();
+	
+	private AudioPlayerView player1;
+	private AudioPlayerView player2;
+	private AudioPlayerView mainPlayer;
+	
+	private AudioFileListView<AudioFile> playlist;
+	private AudioFileListView<AudioFile> playlistOld;
+	private AudioFileListView<AudioFile> databaseList;
+	
+	private CategorySelectorView categorySelector;
 
 	/**
 	 * Create a new main layout for the app
@@ -99,54 +113,66 @@ public class MainPane {
 
 	@FXML
 	public void initialize() throws IOException {
+		
+		playlist         = new AudioFileListView<>(app.playlist,     AudioFileListView.getAudioFileData());
+		playlistOld      = new AudioFileListView<>(app.playlistOld,  AudioFileListView.getAudioFileData());
+		databaseList     = new AudioFileListView<>(app.databaseList, AudioFileListView.getAudioFileData());
+		player1          = new AudioPlayerView(app.player1,    AudioPlayerKind.Music);
+		player2          = new AudioPlayerView(app.player2,    AudioPlayerKind.Music);
+		mainPlayer       = new AudioPlayerView(app.mainPlayer, AudioPlayerKind.Music);
+		categorySelector = new CategorySelectorView(app.categorySelector);
+		
 		for (int i = 0; i < cartouches.size(); i++) {
 			AudioPlayerView cur = new AudioPlayerView(cartouches.get(i), AudioPlayerKind.Cartouche);
 			cartouchesPlayer.add(cur);
 			tableJingles.add(cur.getRootLayout(), i % tableJingles.getColumnCount(), i / tableJingles.getColumnCount());
 		}
+		
+		Consumer<AudioFile> loadAudioFileInPlayer = (AudioFile audioFile) -> {
+			app.mainPlayer.load(audioFile);
+		};
+		
+		playlist.setOnElementDoubleClick(loadAudioFileInPlayer);
+		playlistOld.setOnElementDoubleClick(loadAudioFileInPlayer);
+		databaseList.setOnElementDoubleClick(loadAudioFileInPlayer);
+
+		playlist.setSortable(false);
+		
+
+		topLeftPane.getChildren().add(player1.getRootLayout());
+		GuiApp.makeResponsive(topLeftPane, player1.getRootLayout());
+		
+		topRightPane.getChildren().add(player2.getRootLayout());
+		GuiApp.makeResponsive(topRightPane, player2.getRootLayout());
+		
+		mainPlayerPane.getChildren().add(mainPlayer.getRootLayout());
+		GuiApp.makeResponsive(mainPlayerPane, mainPlayer.getRootLayout());
+		
+		bottomTopPane.getChildren().add(playlistOld.getRootLayout());
+		GuiApp.makeResponsive(bottomTopPane, playlistOld.getRootLayout());
+		
+		bottomBottomPane.getChildren().add(playlist.getRootLayout());
+		GuiApp.makeResponsive(bottomBottomPane, playlist.getRootLayout());
+		
+		databaseListPane.getChildren().add(databaseList.getRootLayout());
+		GuiApp.makeResponsive(databaseListPane, databaseList.getRootLayout());
+		
+		categorySelectorPane.getChildren().add(categorySelector.getRootLayout());
+		GuiApp.makeResponsive(categorySelectorPane, categorySelector.getRootLayout());
+		
+		app.categorySelector.setOnSelectedCategoriesChange((selected) -> updateDatabaseList(selected));
+		
 		loadEvents();
 	}
 
 	/** Method to call after the primaryStage is showed */
 	public void afterShow() {
+		player1.afterShow();
+		player2.afterShow();
+		
 		for (int i = 0; i < cartouchesPlayer.size(); i++) {
 			cartouchesPlayer.get(i).loadWaveform();
 		}
-	}
-
-	public void addTopLeftNode(final Pane pane) {
-		topLeftPane.getChildren().add(pane);
-		GuiApp.makeResponsive(topLeftPane, pane);
-	}
-
-	public void addTopRightNode(final Pane pane) {
-		topRightPane.getChildren().add(pane);
-		GuiApp.makeResponsive(topRightPane, pane);
-	}
-
-	public void addBottomTopNode(final Pane pane) {
-		bottomTopPane.getChildren().add(pane);
-		GuiApp.makeResponsive(bottomTopPane, pane);
-	}
-
-	public void addBottomBottomNode(final Pane pane) {
-		bottomBottomPane.getChildren().add(pane);
-		GuiApp.makeResponsive(bottomBottomPane, pane);
-	}
-
-	public void addMainPlayerPane(final Pane pane) {
-		mainPlayerPane.getChildren().add(pane);
-		GuiApp.makeResponsive(mainPlayerPane, pane);
-	}
-
-	public void addDatabaseListPane(final Pane pane) {
-		databaseListPane.getChildren().add(pane);
-		GuiApp.makeResponsive(databaseListPane, pane);
-	}
-
-	public void addCategorySelector(final Pane pane) {
-		categorySelectorPane.getChildren().add(pane);
-		GuiApp.makeResponsive(categorySelectorPane, pane);
 	}
 
 	/** @return The base Layout of the object */
@@ -185,6 +211,7 @@ public class MainPane {
 						Log.error("Can't add the music : " + music.title + " - Reason : " + e.getMessage());
 					}
 				}
+				updateDatabaseList(app.categorySelector.getSelection());
 			}
 		});
 
@@ -203,5 +230,16 @@ public class MainPane {
 							+ "Développé avec l'aide du Dependable Systems Laboratory, EPFL \n\n"
 							+ "2020");
 		alert.showAndWait();
+	}
+	
+	private void updateDatabaseList(ArrayList<String> selected) {
+		try {
+			ArrayList<AudioFile> newList = app.database.getFromCategoriesAndKind(Kind.MUSIC, selected);
+			app.databaseList.removeAll();
+			app.databaseList.addAtEnd(newList);
+			databaseList.updateView();
+		} catch (Exception e) {
+			Log.error("Unable to update the categorie lists : " + e.getMessage());
+		}
 	}
 }

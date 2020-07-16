@@ -223,15 +223,6 @@ public class AudioUtils {
 		}
 	}
 
-	/*private static String getTextTagValue(final FieldKey key, final Tag tag) {
-		String value = tag.getFirst(key);
-		if (value.startsWith("Text=")) {
-			return value.substring(6, value.length() - 3);
-		} else {
-			return value;
-		}
-	}*/
-
 	private static BufferedImage createImageWithBackground(final int width, final int height, Color backgroundColor) {
 		BufferedImage output = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D graphics = output.createGraphics();

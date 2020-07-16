@@ -76,6 +76,10 @@ public class CategorySelector {
 		throwExceptionIfStringNull(category);
 		return selected.contains(category);
 	}
+	
+	public ArrayList<String> getSelection(){
+		return new ArrayList<String>(selected);
+	}
 
 	/**
 	 * Set a consumer called when the list of categories changes

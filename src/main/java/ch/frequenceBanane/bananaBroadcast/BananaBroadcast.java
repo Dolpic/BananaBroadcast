@@ -8,7 +8,6 @@ import ch.frequenceBanane.bananaBroadcast.categories.*;
 import ch.frequenceBanane.bananaBroadcast.database.*;
 import ch.frequenceBanane.bananaBroadcast.scheduling.*;
 import ch.frequenceBanane.bananaBroadcast.utils.CartouchesArray;
-import ch.frequenceBanane.bananaBroadcast.utils.Log;
 
 /**
  * Main class of the non-GUI application. Instantiate all the different parts of
