@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import ch.frequenceBanane.bananaBroadcast.BananaBroadcast;
+import ch.frequenceBanane.bananaBroadcast.audio.CartouchesArray;
 import ch.frequenceBanane.bananaBroadcast.database.AudioFile;
 import ch.frequenceBanane.bananaBroadcast.database.MusicDatabase;
 import ch.frequenceBanane.bananaBroadcast.database.MusicDatabase.Kind;
@@ -19,7 +20,6 @@ import ch.frequenceBanane.bananaBroadcast.gui.playlist.AudioFileListView;
 import ch.frequenceBanane.bananaBroadcast.gui.scheduler.SchedulerView;
 import ch.frequenceBanane.bananaBroadcast.scheduling.Scheduler;
 import ch.frequenceBanane.bananaBroadcast.utils.AudioUtils;
-import ch.frequenceBanane.bananaBroadcast.utils.CartouchesArray;
 import ch.frequenceBanane.bananaBroadcast.utils.Log;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -103,7 +103,7 @@ public class MainPane {
 	 * @throws IOException If an error occurs during layout file reading
 	 */
 	public MainPane(BananaBroadcast app, Stage primaryStage) throws IOException {
-		this.cartouches = app.jingles;
+		this.cartouches = app.cartouches;
 		this.scheduler = app.scheduler;
 		this.primaryStage = primaryStage;
 		this.database = app.database;

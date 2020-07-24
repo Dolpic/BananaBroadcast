@@ -13,7 +13,7 @@ import java.io.*;
  * @author Corentin Junod
  * @author corentin.junod@epfl.ch
  */
-public class GPIOInterface extends Thread {
+public class GPIOInterface{
 
 	private final int NB_GPIO = 16;
 	private final int PIN_PER_GPIO = 5;
@@ -57,25 +57,30 @@ public class GPIOInterface extends Thread {
 	}
 
 	/** Start the connection with Axia audio driver */
-	public void run() {
-		try {
-			socket = new Socket(InetAddress.getByAddress(ip), port);
-			output = new PrintWriter(socket.getOutputStream(), true);
-			input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+	public void start() {
+		new Runnable() {
+			@Override
+			public void run() {
+				try {
+					socket = new Socket(InetAddress.getByAddress(ip), port);
+					output = new PrintWriter(socket.getOutputStream(), true);
+					input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-			// The connection is instanced, as specified by the protocol
-			output.println();
-			output.println("ADD GPO");
+					// The connection is instanced, as specified by the protocol
+					output.println();
+					output.println("ADD GPO");
 
-			while (running) {
-				if (input.ready()) {
-					processReceivedLine(input.readLine());
+					while (running) {
+						if (input.ready()) {
+							processReceivedLine(input.readLine());
+						}
+					}
+					socket.close();
+				} catch (IOException e) {
+					Log.error("Error in GPIO connexion : " + e.getMessage());
 				}
 			}
-			socket.close();
-		} catch (IOException e) {
-			Log.error("Error in GPIO connexion : " + e.getMessage());
-		}
+		};
 	}
 
 	private void processReceivedLine(final String line) {

@@ -16,7 +16,6 @@ import ch.frequenceBanane.bananaBroadcast.audio.*;
 import ch.frequenceBanane.bananaBroadcast.categories.*;
 import ch.frequenceBanane.bananaBroadcast.database.*;
 import ch.frequenceBanane.bananaBroadcast.scheduling.*;
-import ch.frequenceBanane.bananaBroadcast.utils.CartouchesArray;
 
 /**
  * Main class of the non-GUI application. Instantiate all the different parts of
@@ -42,7 +41,7 @@ public class BananaBroadcast {
 	public final Playlist<AudioFile> databaseList;
 
 	public final Scheduler scheduler;
-	public final CartouchesArray jingles;
+	public final CartouchesArray cartouches;
 
 	public final CategorySelector categorySelector;
 
@@ -93,7 +92,7 @@ public class BananaBroadcast {
 			playlistOld = new Playlist<>();
 			databaseList = new Playlist<>();
 			scheduler = new Scheduler(database);
-			jingles = new CartouchesArray(database, "");
+			cartouches = new CartouchesArray(database, "");
 			categorySelector = new CategorySelector(database);
 		} catch (SQLException e) {
 			throw new SQLException("Database error occurs during main class creation : " + e.getMessage());

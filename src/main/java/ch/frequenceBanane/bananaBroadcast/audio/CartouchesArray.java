@@ -1,9 +1,8 @@
-package ch.frequenceBanane.bananaBroadcast.utils;
+package ch.frequenceBanane.bananaBroadcast.audio;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import ch.frequenceBanane.bananaBroadcast.audio.AudioPlayer;
 import ch.frequenceBanane.bananaBroadcast.database.*;
 
 public class CartouchesArray {
