@@ -89,9 +89,9 @@ public class MainPane {
 	private AudioPlayerView player2;
 	private AudioPlayerView mainPlayer;
 	
-	private AudioFileListView<AudioFile> playlist;
-	private AudioFileListView<AudioFile> playlistOld;
-	private AudioFileListView<AudioFile> databaseList;
+	private AudioFileListView playlist;
+	private AudioFileListView playlistOld;
+	private AudioFileListView databaseList;
 	
 	private CategorySelectorView categorySelector;
 
@@ -114,9 +114,9 @@ public class MainPane {
 	@FXML
 	public void initialize() throws IOException {
 		
-		playlist         = new AudioFileListView<>(app.playlist,     AudioFileListView.getAudioFileData());
-		playlistOld      = new AudioFileListView<>(app.playlistOld,  AudioFileListView.getAudioFileData());
-		databaseList     = new AudioFileListView<>(app.databaseList, AudioFileListView.getAudioFileData());
+		playlist         = new AudioFileListView(app.playlist);
+		playlistOld      = new AudioFileListView(app.playlistOld);
+		databaseList     = new AudioFileListView(app.databaseList);
 		player1          = new AudioPlayerView(app.player1,    AudioPlayerKind.Music);
 		player2          = new AudioPlayerView(app.player2,    AudioPlayerKind.Music);
 		mainPlayer       = new AudioPlayerView(app.mainPlayer, AudioPlayerKind.Music);

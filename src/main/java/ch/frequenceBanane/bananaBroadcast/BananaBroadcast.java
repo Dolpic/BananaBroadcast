@@ -82,17 +82,17 @@ public class BananaBroadcast {
 		}
 		
 		try {
-			database = new MusicDatabase(databaseUrl, databaseName, databaseUser, databasePassword);
-			player1 = new AudioPlayer();
-			player2 = new AudioPlayer();
-			mainPlayer = new AudioPlayer();
-			gpio = new GPIOInterface(ip, gpioPort);
-			recorder = new Recorder("records/");
-			playlist = new Playlist<>();
-			playlistOld = new Playlist<>();
-			databaseList = new Playlist<>();
-			scheduler = new Scheduler(database);
-			cartouches = new CartouchesArray(database, "");
+			database         = new MusicDatabase(databaseUrl, databaseName, databaseUser, databasePassword);
+			player1          = new AudioPlayer();
+			player2          = new AudioPlayer();
+			mainPlayer       = new AudioPlayer();
+			gpio             = new GPIOInterface(ip, gpioPort);
+			recorder         = new Recorder("records/");
+			playlist         = new Playlist<>();
+			playlistOld      = new Playlist<>();
+			databaseList     = new Playlist<>();
+			scheduler        = new Scheduler(database);
+			cartouches       = new CartouchesArray(database, "");
 			categorySelector = new CategorySelector(database);
 		} catch (SQLException e) {
 			throw new SQLException("Database error occurs during main class creation : " + e.getMessage());
@@ -121,8 +121,9 @@ public class BananaBroadcast {
 			AudioFile next = playlist.getNext();
 			playlistOld.addAtEnd(next);
 			player.load(next);
-			if (!isInManual)
+			if (!isInManual) {
 				nextPlayerToPlay.play();
+			}
 		});
 	}
 	
@@ -168,10 +169,9 @@ public class BananaBroadcast {
 		
 		if(!propertiesFile.exists()) {
 			propertiesFile.createNewFile();
-			 FileOutputStream writer = new FileOutputStream(propertiesFile);
-			 System.out.println("DEBUG:"+App.getResourceAsStream(DEFAULT_CONFIG_PATH));
-			 writer.write(App.getResourceAsStream(DEFAULT_CONFIG_PATH).readAllBytes());
-			 writer.close();
+			FileOutputStream writer = new FileOutputStream(propertiesFile);
+			writer.write(App.getResourceAsStream(DEFAULT_CONFIG_PATH).readAllBytes());
+			writer.close();
 		}
 
 		FileBasedConfigurationBuilder<FileBasedConfiguration> builder = 
