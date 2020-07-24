@@ -1,0 +1,10 @@
+#Database
+Database_URL      = jdbc:mysql://localhost:3307/bananabroadcast
+Database_User     = root
+Database_Password = usbw
+
+#GPIO
+GPIO_IP   = 10.10.2.235
+GPIO_Port = 93
+
+

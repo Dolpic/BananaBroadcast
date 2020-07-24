@@ -1,6 +1,15 @@
 package ch.frequenceBanane.bananaBroadcast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.SQLException;
+
+import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.FileBasedConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 
 import ch.frequenceBanane.bananaBroadcast.GPIO.*;
 import ch.frequenceBanane.bananaBroadcast.audio.*;
@@ -38,6 +47,8 @@ public class BananaBroadcast {
 	public final CategorySelector categorySelector;
 
 	private boolean isInManual = false;
+	private static final String CONFIG_FILENAME     = "config.properties";
+	private static final String DEFAULT_CONFIG_PATH = "/config/config.properties.default";
 
 	/**
 	 * Start the application and link it with the given database
@@ -47,9 +58,17 @@ public class BananaBroadcast {
 	 * @param databasePassword the password associated with the given username
 	 * @throws SQLException if the connection to the database fail or an error
 	 *                      occurs during the instantiation
+	 * @throws ConfigurationException 
+	 * @throws IOException 
 	 */
-	public BananaBroadcast(final String databaseUrl, final String databaseUser, final String databasePassword, final String gpioIp, final int gpioPort)
-			throws SQLException {
+	public BananaBroadcast() throws SQLException, IOException, ConfigurationException {
+		
+		Configuration config    = getConfiguration();
+		String databaseUrl      = config.getString("Database_URL");
+		String databaseUser     = config.getString("Database_User");
+		String databasePassword = config.getString("Database_Password");
+		String gpioIp           = config.getString("GPIO_IP");
+		int gpioPort            = config.getInt("GPIO_Port");
 		
 		String[] ipSplit = gpioIp.split("\\.");
 		
@@ -138,5 +157,26 @@ public class BananaBroadcast {
 	/** Stop the communication with the GPIOs */
 	public void stopGPIO() {
 		gpio.close();
+	}
+	
+	private Configuration getConfiguration() throws IOException, ConfigurationException {
+		org.apache.commons.configuration2.builder.fluent.Parameters params = new org.apache.commons.configuration2.builder.fluent.Parameters();
+		File propertiesFile = new File(CONFIG_FILENAME);
+		
+		if(!propertiesFile.exists()) {
+			propertiesFile.createNewFile();
+			 FileOutputStream writer = new FileOutputStream(propertiesFile);
+			 System.out.println("DEBUG:"+App.getResourceAsStream(DEFAULT_CONFIG_PATH));
+			 writer.write(App.getResourceAsStream(DEFAULT_CONFIG_PATH).readAllBytes());
+			 writer.close();
+		}
+
+		FileBasedConfigurationBuilder<FileBasedConfiguration> builder = 
+				new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
+				.configure(params.fileBased().setFile(propertiesFile));
+		builder.setAutoSave(true);
+
+		propertiesFile.createNewFile();
+		return builder.getConfiguration();
 	}
 }

@@ -1,16 +1,12 @@
 package ch.frequenceBanane.bananaBroadcast.gui;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.function.Consumer;
 
-import org.apache.commons.configuration2.Configuration;
-import org.apache.commons.configuration2.FileBasedConfiguration;
-import org.apache.commons.configuration2.PropertiesConfiguration;
-import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
+import ch.frequenceBanane.bananaBroadcast.App;
 import ch.frequenceBanane.bananaBroadcast.BananaBroadcast;
 import ch.frequenceBanane.bananaBroadcast.gui.mainPane.MainPane;
 import ch.frequenceBanane.bananaBroadcast.utils.Log;
@@ -58,13 +54,7 @@ public class GuiApp extends Application {
 	private void initialize() throws IOException, ConfigurationException {
 		
 		try {
-			Configuration config = getConfiguration();
-			app = new BananaBroadcast(
-					config.getString("Database_URL"), 
-					config.getString("Database_User"), 
-					config.getString("Database_Password"), 
-					config.getString("GPIO_IP"),
-					config.getInt("GPIO_Port"));
+			app = new BananaBroadcast();
 		} catch (SQLException e) {
 			die("Unable to open the database, please check that the database is reachable and the creditentials are corrects.\n\nThey are set in config.properties\n\n Error : "+e.getMessage());
 		}
@@ -120,7 +110,7 @@ public class GuiApp extends Application {
 	 * @throws IOException If an error occurs during the file operations
 	 */
 	public static Parent loadLayout(final Object controller, final String file) throws IOException {
-		FXMLLoader loader = new FXMLLoader(GuiApp.class.getClassLoader().getResource("fxml/" + file));
+		FXMLLoader loader = new FXMLLoader(App.getResource("fxml/" + file));
 		loader.setController(controller);
 		return loader.load();
 	}
@@ -145,18 +135,5 @@ public class GuiApp extends Application {
 		Log.errorDialog(msg);
 		Platform.exit();
 		System.exit(1);
-	}
-	
-	private Configuration getConfiguration() throws IOException, ConfigurationException {
-		org.apache.commons.configuration2.builder.fluent.Parameters params = new org.apache.commons.configuration2.builder.fluent.Parameters();
-		File propertiesFile = new File("config.properties");
-
-		FileBasedConfigurationBuilder<FileBasedConfiguration> builder = 
-				new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
-				.configure(params.fileBased().setFile(propertiesFile));
-		builder.setAutoSave(true);
-
-		propertiesFile.createNewFile();
-		return builder.getConfiguration();
 	}
 }
