@@ -111,31 +111,34 @@ public class BananaBroadcast {
 		initializePlayer(player2, player1);
 
 		databaseList.addAtEnd(database.getAllMusics());
-
+		
 		loadMusics();
 	}
 
 	private void initializePlayer(AudioPlayer player, AudioPlayer nextPlayerToPlay) {
 		player.addOnFinishEvent(() -> {
 			player.close();
-			playlistOld.addAtEnd(player.getCurrentAudioFile());
-			player.load(playlist.getNext());
+			AudioFile next = playlist.getNext();
+			playlistOld.addAtEnd(next);
+			player.load(next);
 			if (!isInManual)
 				nextPlayerToPlay.play();
 		});
 	}
-
-	/** Reload the playlist and load the two next songs into the players */
+	
 	public void loadMusics() {
 		playlist.removeAll();
 		playlist.addAtEnd(scheduler.getNextMusics(DEFAULT_PLAYLIST_SIZE));
+		
 		AudioFile next = playlist.getNext();
 		if (next != null) {
 			player1.load(next);
+			playlistOld.addAtEnd(next);
 		}
 		next = playlist.getNext();
 		if (next != null) {
 			player2.load(next);
+			playlistOld.addAtEnd(next);
 		}
 	}
 
