@@ -1,11 +1,13 @@
 package ch.frequenceBanane.bananaBroadcast.database;
 
+import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import ch.frequenceBanane.bananaBroadcast.App;
 import ch.frequenceBanane.bananaBroadcast.utils.Log;
 
 /**
@@ -16,6 +18,8 @@ import ch.frequenceBanane.bananaBroadcast.utils.Log;
  * @author corentin.junod@epfl.ch
  */
 public class MusicDatabase {
+	
+	private static final String DB_CREATION_COMMAND = "/database/bananabroadcast.sql";
 
 	public static enum Kind {
 		MUSIC, JINGLE, TAPIS, CARTOUCHE
@@ -23,13 +27,24 @@ public class MusicDatabase {
 
 	private static Connection connection;
 
-	/** Create a new connection with the database */
-	public MusicDatabase(final String url, final String user, final String password) throws SQLException {
+	/** Create a new connection with the database 
+	 * @throws IOException */
+	public MusicDatabase(final String url, final String dbName, final String user, final String password) throws SQLException, IOException {
+		
 		try {
-			connection = DriverManager.getConnection(url + "?serverTimezone=UTC", user, password);
+			connection = DriverManager.getConnection("jdbc:mysql://localhost:3307" + "?serverTimezone=UTC&allowMultiQueries=true", user, password);
 		} catch (Exception e) {
 			Log.error("Unable to connect to the database");
 			throw new SQLException("Unable to connect to the database");
+		}
+	
+		ResultSet result = connection.createStatement().executeQuery("SHOW DATABASES LIKE '"+dbName+"'");
+		if(!result.next()) {
+			connection.prepareStatement("CREATE DATABASE IF NOT EXISTS `"+dbName+"`").executeUpdate();
+			connection.prepareStatement("USE `"+dbName+"`").executeUpdate();
+			connection.prepareStatement(new String(App.getResourceAsStream(DB_CREATION_COMMAND).readAllBytes())).executeUpdate();;
+		}else {
+			connection.prepareStatement("USE `"+dbName+"`").executeUpdate();
 		}
 	}
 

@@ -1,5 +1,6 @@
 #Database
-Database_URL      = jdbc:mysql://localhost:3307/bananabroadcast
+Database_URL      = jdbc:mysql://localhost:3307/
+Database_Name     = bananabroadcast
 Database_User     = root
 Database_Password = usbw
 

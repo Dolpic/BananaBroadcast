@@ -66,6 +66,7 @@ public class BananaBroadcast {
 		Configuration config    = getConfiguration();
 		String databaseUrl      = config.getString("Database_URL");
 		String databaseUser     = config.getString("Database_User");
+		String databaseName     = config.getString("Database_Name");
 		String databasePassword = config.getString("Database_Password");
 		String gpioIp           = config.getString("GPIO_IP");
 		int gpioPort            = config.getInt("GPIO_Port");
@@ -82,7 +83,7 @@ public class BananaBroadcast {
 		}
 		
 		try {
-			database = new MusicDatabase(databaseUrl, databaseUser, databasePassword);
+			database = new MusicDatabase(databaseUrl, databaseName, databaseUser, databasePassword);
 			player1 = new AudioPlayer();
 			player2 = new AudioPlayer();
 			mainPlayer = new AudioPlayer();

@@ -14,7 +14,7 @@ import ch.frequenceBanane.bananaBroadcast.database.MusicDatabase;
 
 public class PlaylistTest {
 	
-	private final String databaseUrl      = "jdbc:mysql://localhost:3307/bananabroadcast";
+	/*private final String databaseUrl      = "jdbc:mysql://localhost:3307/bananabroadcast";
 	private final String databaseUser     = "root";
 	private final String databasePassword = "usbw";
 	
@@ -37,5 +37,5 @@ public class PlaylistTest {
     assertThrows(IllegalArgumentException.class, ()->catSel.removeSelectedCategory(null));
     assertThrows(IllegalArgumentException.class, ()->catSel.isSelectedCategory(null));
     assertThrows(IllegalArgumentException.class, ()->catSel.setOnSelectedCategoriesChange(null));
-	}
+	}*/
 }
