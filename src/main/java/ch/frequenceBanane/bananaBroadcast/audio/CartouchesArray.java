@@ -10,10 +10,10 @@ public class CartouchesArray {
 	private ArrayList<AudioPlayer> array = new ArrayList<>();
 
 	public CartouchesArray(MusicDatabase database, String panel) throws SQLException {
-		ArrayList<AudioFile> audioJingles = database.getCartouches(panel);
-		for (int i = 0; i < audioJingles.size(); i++) {
+		ArrayList<AudioFile> cartouches = database.getCartouches(panel);
+		for (int i = 0; i < cartouches.size(); i++) {
 			AudioPlayer ap = new AudioPlayer();
-			ap.load(audioJingles.get(i));
+			ap.load(cartouches.get(i));
 			array.add(ap);
 		}
 	}
